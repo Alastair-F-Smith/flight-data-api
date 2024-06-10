@@ -6,19 +6,14 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.delegate.DatabaseDelegate;
-import org.testcontainers.ext.ScriptUtils;
-import org.testcontainers.jdbc.JdbcDatabaseDelegate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -31,7 +26,7 @@ class AircraftDataControllerIT {
                                                     .withInitScript("scripts/init-db.sql");
 
     @Autowired
-    TestRestTemplate restTemplate;
+    WebTestClient webTestClient;
 
     @Test
     @DisplayName("Connection to database container established")
@@ -43,8 +38,11 @@ class AircraftDataControllerIT {
     @RepeatedTest(2)
     @DisplayName("Finds all aircraft data")
     void findsAllAircraftData() {
-        AircraftsData[] data = restTemplate.getForObject("/api/aircraft", AircraftsData[].class);
-        assertThat(data.length).isEqualTo(1);
+        webTestClient.get()
+                .uri("/api/aircraft")
+                .exchange()
+                .expectBodyList(AircraftsData.class)
+                .hasSize(1);
     }
 
 }
