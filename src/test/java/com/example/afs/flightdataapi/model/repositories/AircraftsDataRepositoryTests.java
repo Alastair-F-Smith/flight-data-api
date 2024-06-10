@@ -2,19 +2,15 @@ package com.example.afs.flightdataapi.model.repositories;
 
 import com.example.afs.flightdataapi.model.entities.AircraftModel;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.*;
 
-//@SpringBootTest
 @DataJpaTest
 @TestPropertySource(properties = {
         "spring.test.database.replace=none",
