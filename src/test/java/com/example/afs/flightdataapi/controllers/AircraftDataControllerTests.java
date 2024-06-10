@@ -5,6 +5,7 @@ import com.example.afs.flightdataapi.model.entities.AircraftModel;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
 import com.example.afs.flightdataapi.model.repositories.AircraftsDataRepository;
 import com.example.afs.flightdataapi.services.TokenService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -37,6 +39,9 @@ class AircraftDataControllerTests {
 
     AircraftsData aircraft1;
     AircraftsData aircraft2;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
@@ -75,6 +80,44 @@ class AircraftDataControllerTests {
                         jsonPath("$[1].model.en", is(aircraft2.getModel().en())),
                         jsonPath("$[1].range", is(aircraft2.getRange()))
                 );
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Add aircraft passes correct aircraft data to the repository")
+    void addAircraftPassesCorrectAircraftDataToTheRepository() throws Exception {
+        String json = objectMapper.writeValueAsString(aircraft1);
+
+        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+                .thenReturn(aircraft1);
+
+        mockMvc.perform(post("/api/aircraft")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isCreated(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        content().json(json)
+                );
+
+        verify(aircraftsDataRepository, times(1)).save(aircraft1);
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Add aircraft returns the correct location URL for the newly created resource")
+    void addAircraftReturnsTheCorrectLocationUrlForTheNewlyCreatedResource() throws Exception {
+        String json = objectMapper.writeValueAsString(aircraft1);
+
+        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+                .thenReturn(aircraft1);
+
+        String expectedLocation = "http://localhost/api/aircraft/" + aircraft1.getAircraftCode();
+
+        mockMvc.perform(post("/api/aircraft")
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(header().string("location", is(expectedLocation)));
     }
 
 }

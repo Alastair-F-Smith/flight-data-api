@@ -1,6 +1,8 @@
 package com.example.afs.flightdataapi.controllers;
 
+import com.example.afs.flightdataapi.model.entities.AircraftModel;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
@@ -16,6 +18,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -32,9 +35,17 @@ class AircraftDataControllerIT {
     @Autowired
     AircraftDataController aircraftDataController;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    AircraftsData aircraft1;
+    AircraftsData aircraft2;
+
     @BeforeEach
     void setup() {
         webTestClient = WebTestClient.bindToController(aircraftDataController).build();
+        aircraft1 = new AircraftsData("ABC", new AircraftModel("Boeing", "Boeing"), 10000);
+        aircraft2 = new AircraftsData("123", new AircraftModel("Airbus", "Airbus"), 15000);
     }
 
     @Test
@@ -54,6 +65,37 @@ class AircraftDataControllerIT {
                 .exchange()
                 .expectBodyList(AircraftsData.class)
                 .hasSize(1);
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Add aircraft saves the new aircraft data in the database")
+    void addAircraftSavesTheNewAircraftDataInTheDatabase() {
+        webTestClient
+                .post()
+                .uri("/api/aircraft")
+                .bodyValue(aircraft1)
+                .exchange();
+
+        webTestClient
+                .get()
+                .uri("/api/aircraft")
+                .exchange()
+                .expectBodyList(AircraftsData.class)
+                .hasSize(2);
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Add aircraft returns a response body containing the data that was saved")
+    void addAircraftReturnsAResponseBodyContainingTheDataThatWasSaved() {
+        webTestClient
+                .post()
+                .uri("/api/aircraft")
+                .bodyValue(aircraft1)
+                .exchange()
+                .expectBody(AircraftsData.class)
+                .isEqualTo(aircraft1);
     }
 
 }
