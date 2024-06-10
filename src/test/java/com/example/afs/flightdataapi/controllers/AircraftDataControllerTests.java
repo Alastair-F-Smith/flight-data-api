@@ -1,18 +1,23 @@
 package com.example.afs.flightdataapi.controllers;
 
+import com.example.afs.flightdataapi.config.SecurityConfig;
 import com.example.afs.flightdataapi.model.entities.AircraftModel;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
 import com.example.afs.flightdataapi.model.repositories.AircraftsDataRepository;
+import com.example.afs.flightdataapi.services.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -20,7 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.is;
 
-@WebMvcTest(AircraftDataController.class)
+@WebMvcTest({AircraftDataController.class, AuthController.class})
+@Import({TokenService.class, SecurityConfig.class})
 class AircraftDataControllerTests {
 
     @Autowired
@@ -39,12 +45,21 @@ class AircraftDataControllerTests {
     }
 
     @Test
+    @DisplayName("Find all aircraft data returns a 401 response status when user is not authenticated")
+    void findAllAircraftDataReturnsA401ResponseStatusWhenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/aircraft"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @WithMockUser
+    @Test
     @DisplayName("Find all aircraft data returns a 200 response status")
     void findAllAircraftDataReturnsA200ResponseStatus() throws Exception {
         mockMvc.perform(get("/api/aircraft"))
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser
     @Test
     @DisplayName("Find all aircraft data returns correctly formatted data")
     void findAllAircraftDataReturnsCorrectlyFormattedData() throws Exception {
