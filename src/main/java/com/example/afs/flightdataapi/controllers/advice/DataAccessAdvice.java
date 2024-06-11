@@ -19,4 +19,11 @@ public class DataAccessAdvice {
         return ResponseEntity.badRequest()
                 .body(response);
     }
+
+    @ExceptionHandler({DataNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleDataNotFoundException(DataNotFoundException e) {
+        ErrorResponse response = ErrorResponse.from(e, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
 }
