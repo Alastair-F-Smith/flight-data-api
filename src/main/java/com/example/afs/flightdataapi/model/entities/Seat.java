@@ -1,6 +1,8 @@
 package com.example.afs.flightdataapi.model.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "seats")

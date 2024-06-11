@@ -51,5 +51,4 @@ class SeatRepositoryTests {
         assertThat(seat.getFareConditions()).isEqualTo(FareConditions.ECONOMY);
     }
 
-
 }
