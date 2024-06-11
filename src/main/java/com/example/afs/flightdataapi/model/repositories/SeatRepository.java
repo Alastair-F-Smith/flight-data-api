@@ -5,4 +5,5 @@ import com.example.afs.flightdataapi.model.entities.SeatId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SeatRepository extends JpaRepository<Seat, SeatId> {
+    void deleteBySeatIdAircraftCode(String aircraftCode);
 }

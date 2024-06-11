@@ -33,5 +33,6 @@ public class AircraftDataService {
 
     public void deleteById(String id) {
         aircraftsDataRepository.deleteById(id);
+        seatRepository.deleteBySeatIdAircraftCode(id);
     }
 }

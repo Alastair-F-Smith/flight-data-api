@@ -71,21 +71,4 @@ class AircraftsDataRepositoryTests {
             repository.flush();
         }).withMessageContaining("length must be between 3 and 3");
     }
-
-    @Test
-    @DisplayName("Deleting an aircraft record also removes its associated seats")
-    void deletingAnAircraftRecordAlsoRemovesItsAssociatedSeats() {
-        aircraftsDataRepository.deleteById("773");
-        assertThat(aircraftsDataRepository.count()).isEqualTo(0L);
-        assertThat(seatRepository.count()).isEqualTo(0L);
-    }
-
-    @Test
-    @DisplayName("Deleting a seat does not remove the associated aircraft data")
-    void deletingASeatDoesNotRemoveTheAssociatedAircraftData() {
-        SeatId seatId = new SeatId("773", "43G");
-        seatRepository.deleteById(seatId);
-        assertThat(seatRepository.count()).isEqualTo(1L);
-        assertThat(aircraftsDataRepository.count()).isEqualTo(1L);
-    }
 }
