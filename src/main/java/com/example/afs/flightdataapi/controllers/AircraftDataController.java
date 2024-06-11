@@ -29,6 +29,17 @@ public class AircraftDataController {
         return ResponseEntity.ok(aircraftsDataRepository.findAll());
     }
 
+    @GetMapping("/aircraft/{code}")
+    public ResponseEntity<AircraftsData> getAircraftDataById(@PathVariable String code) {
+        AircraftsData found = findByAircraftCode(code);
+        return ResponseEntity.ok(found);
+    }
+
+    private AircraftsData findByAircraftCode(String code) {
+        return aircraftsDataRepository.findById(code)
+                                      .orElseThrow(() -> new DataNotFoundException(code));
+    }
+
     @PostMapping("/aircraft")
     public ResponseEntity<AircraftsData> addAircraftData(@RequestBody AircraftsData aircraftData) {
         AircraftsData saved = aircraftsDataRepository.save(aircraftData);
@@ -39,10 +50,16 @@ public class AircraftDataController {
                              .body(saved);
     }
 
+    @PutMapping("/aircraft/{code}")
+    public ResponseEntity<AircraftsData> updateAircraftData(@PathVariable String code, @RequestBody AircraftsData updatedData) {
+        AircraftsData toBeUpdated = findByAircraftCode(code);
+        toBeUpdated.updateWith(updatedData);
+        return ResponseEntity.ok(toBeUpdated);
+    }
+
     @DeleteMapping("/aircraft/{code}")
     public ResponseEntity<AircraftsData> deleteAircraftData(@PathVariable String code) {
-        AircraftsData deleted = aircraftsDataRepository.findById(code)
-                .orElseThrow(() -> new DataNotFoundException(code));
+        AircraftsData deleted = findByAircraftCode(code);
         aircraftsDataRepository.deleteById(code);
         return ResponseEntity.ok(deleted);
     }

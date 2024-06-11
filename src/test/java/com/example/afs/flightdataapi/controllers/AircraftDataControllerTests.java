@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -65,6 +64,22 @@ class AircraftDataControllerTests {
     void findAllAircraftDataReturnsA200ResponseStatus() throws Exception {
         mockMvc.perform(get("/api/aircraft"))
                 .andExpect(status().isOk());
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Get aircraft data by id returns a response containing the correct data")
+    void getAircraftDataByIdReturnsAResponseContainingTheCorrectData() throws Exception {
+        when(aircraftsDataRepository.findById(anyString()))
+                .thenReturn(Optional.of(aircraft1));
+
+        mockMvc.perform(get("/api/aircraft/" + aircraft1.getAircraftCode()))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.aircraftCode", is(aircraft1.getAircraftCode())),
+                        jsonPath("$.model.en", is(aircraft1.getModel().en())),
+                        jsonPath("$.range", is(aircraft1.getRange()))
+                );
     }
 
     @WithMockUser
@@ -121,6 +136,47 @@ class AircraftDataControllerTests {
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(header().string("location", is(expectedLocation)));
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Update aircraft returns a response containing the updated data")
+    void updateAircraftReturnsAResponseContainingTheUpdatedData() throws Exception {
+        when(aircraftsDataRepository.findById(anyString()))
+                .thenReturn(Optional.of(aircraft1));
+
+        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+                .thenAnswer(i -> i.getArgument(0, AircraftsData.class));
+
+        AircraftsData updated = new AircraftsData(aircraft1.getAircraftCode(), new AircraftModel("Airbus", "Airbus"), 123456);
+
+        mockMvc.perform(put("/api/aircraft/" + aircraft1.getAircraftCode())
+                                .content(objectMapper.writeValueAsString(updated))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.aircraftCode", is(updated.getAircraftCode())),
+                        jsonPath("$.model.en", is(updated.getModel().en())),
+                        jsonPath("$.range", is(updated.getRange()))
+                );
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Update aircraft returns a not found status code if the ID is not found")
+    void updateAircraftReturnsANotFoundStatusCodeIfTheIdIsNotFound() throws Exception {
+        when(aircraftsDataRepository.findById(anyString()))
+                .thenReturn(Optional.empty());
+
+        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+                .thenAnswer(i -> i.getArgument(0, AircraftsData.class));
+
+        AircraftsData updated = new AircraftsData("ZZZ", new AircraftModel("Airbus", "Airbus"), 123456);
+
+        mockMvc.perform(put("/api/aircraft/" + aircraft1.getAircraftCode())
+                                .content(objectMapper.writeValueAsString(updated))
+                                .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(status().isNotFound());
     }
 
     @WithMockUser

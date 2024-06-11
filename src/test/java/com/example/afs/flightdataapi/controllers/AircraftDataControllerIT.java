@@ -15,14 +15,12 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -69,6 +67,29 @@ class AircraftDataControllerIT {
     @DisplayName("Finds all aircraft data")
     void findsAllAircraftData() {
         assertThatNumberOfRecordsEquals(1);
+    }
+
+    private void assertThatNumberOfRecordsEquals(int number) {
+        webTestClient
+                .get()
+                .uri("/api/aircraft")
+                .exchange()
+                .expectBodyList(AircraftsData.class)
+                .hasSize(number);
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Get by ID returns a response containing the correct data")
+    void getByIdReturnsAResponseContainingTheCorrectData() {
+        String code = "773";
+        AircraftsData expected = new AircraftsData(code, new AircraftModel("Boeing", "Boeing"), 11100);
+        webTestClient
+                .get()
+                .uri("/api/aircraft/" + code)
+                .exchange()
+                .expectBody(AircraftsData.class)
+                .isEqualTo(expected);
     }
 
     @WithMockUser
@@ -128,13 +149,26 @@ class AircraftDataControllerIT {
         assertThatNumberOfRecordsEquals(0);
     }
 
-    private void assertThatNumberOfRecordsEquals(int number) {
+    @WithMockUser
+    @Test
+    @DisplayName("Update aircraft data correctly updates the data")
+    void updateAircraftDataCorrectlyUpdatesTheData() {
+        String code = "773";
+        AircraftsData update = new AircraftsData(code, new AircraftModel("Airbus", "Airbus"), 13000);
+        webTestClient
+                .put()
+                .uri("/api/aircraft/" + code)
+                .bodyValue(update)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
         webTestClient
                 .get()
-                .uri("/api/aircraft")
+                .uri("/api/aircraft/" + code)
                 .exchange()
-                .expectBodyList(AircraftsData.class)
-                .hasSize(number);
+                .expectBody(AircraftsData.class)
+                .isEqualTo(update);
     }
 
 }

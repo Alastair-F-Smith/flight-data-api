@@ -32,6 +32,11 @@ public class AircraftsData {
     public AircraftsData() {
     }
 
+    public void updateWith(AircraftsData updatedData) {
+        setModel(updatedData.getModel());
+        setRange(updatedData.getRange());
+    }
+
     public String getAircraftCode() {
         return aircraftCode;
     }
