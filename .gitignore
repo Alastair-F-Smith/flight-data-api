@@ -36,3 +36,6 @@ build/
 
 ### Config File ###
 *.properties
+
+### Security ###
+**/certs/*
