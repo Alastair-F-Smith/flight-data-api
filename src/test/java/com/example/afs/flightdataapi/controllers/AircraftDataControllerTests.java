@@ -1,6 +1,7 @@
 package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.config.SecurityConfig;
+import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
 import com.example.afs.flightdataapi.model.entities.AircraftModel;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
 import com.example.afs.flightdataapi.model.repositories.AircraftsDataRepository;
@@ -18,6 +19,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -26,8 +28,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
 
-@WebMvcTest({AircraftDataController.class, AuthController.class})
+@WebMvcTest({AircraftDataController.class, AuthController.class, DataAccessAdvice.class})
 @Import({TokenService.class, SecurityConfig.class})
 class AircraftDataControllerTests {
 
@@ -118,6 +121,48 @@ class AircraftDataControllerTests {
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(header().string("location", is(expectedLocation)));
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Delete aircraft returns 200 status when aircraft record is found")
+    void deleteAircraftReturns200StatusWhenAircraftRecordIsFound() throws Exception {
+        when(aircraftsDataRepository.findById(anyString()))
+                .thenReturn(Optional.of(aircraft1));
+
+        mockMvc.perform(delete("/api/aircraft/" + aircraft1.getAircraftCode()))
+                .andExpect(status().isOk());
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Delete aircraft returns a response containing data for the deleted record")
+    void deleteAircraftReturnsAResponseContainingDataForTheDeletedRecord() throws Exception {
+        when(aircraftsDataRepository.findById(anyString()))
+                .thenReturn(Optional.of(aircraft1));
+
+        mockMvc.perform(delete("/api/aircraft/" + aircraft1.getAircraftCode()))
+               .andExpectAll(
+                       jsonPath("$.aircraftCode", is(aircraft1.getAircraftCode())),
+                       jsonPath("$.model.en", is(aircraft1.getModel().en())),
+                       jsonPath("$.range", is(aircraft1.getRange()))
+               );
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Delete aircraft returns an error response when an aircraft record is not found")
+    void deleteAircraftReturnsAnErrorResponseWhenAnAircraftRecordIsNotFound() throws Exception {
+        when(aircraftsDataRepository.findById(anyString()))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(delete("/api/aircraft/" + aircraft1.getAircraftCode()))
+               .andExpectAll(
+                       status().isNotFound(),
+                       jsonPath("$.message", containsString(aircraft1.getAircraftCode())),
+                       jsonPath("$.statusCode", is(404)),
+                       jsonPath("$.cause", is(""))
+               );
     }
 
 }

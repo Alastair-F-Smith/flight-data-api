@@ -68,12 +68,7 @@ class AircraftDataControllerIT {
     @RepeatedTest(2)
     @DisplayName("Finds all aircraft data")
     void findsAllAircraftData() {
-        webTestClient
-                .get()
-                .uri("/api/aircraft")
-                .exchange()
-                .expectBodyList(AircraftsData.class)
-                .hasSize(1);
+        assertThatNumberOfRecordsEquals(1);
     }
 
     @WithMockUser
@@ -86,12 +81,7 @@ class AircraftDataControllerIT {
                 .bodyValue(aircraft1)
                 .exchange();
 
-        webTestClient
-                .get()
-                .uri("/api/aircraft")
-                .exchange()
-                .expectBodyList(AircraftsData.class)
-                .hasSize(2);
+        assertThatNumberOfRecordsEquals(2);
     }
 
     @WithMockUser
@@ -121,6 +111,30 @@ class AircraftDataControllerIT {
                 .isBadRequest()
                 .expectBody(ErrorResponse.class)
                 ;
+    }
+
+    @WithMockUser
+    @Test
+    @DisplayName("Delete aircraft deletes the aircraft data when it exists")
+    void deleteAircraftDeletesTheAircraftDataWhenItExists() {
+        String code = "773";
+        webTestClient
+                .delete()
+                .uri("/api/aircraft/" + code)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        assertThatNumberOfRecordsEquals(0);
+    }
+
+    private void assertThatNumberOfRecordsEquals(int number) {
+        webTestClient
+                .get()
+                .uri("/api/aircraft")
+                .exchange()
+                .expectBodyList(AircraftsData.class)
+                .hasSize(number);
     }
 
 }

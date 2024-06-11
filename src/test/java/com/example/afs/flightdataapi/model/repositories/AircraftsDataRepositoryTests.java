@@ -2,10 +2,13 @@ package com.example.afs.flightdataapi.model.repositories;
 
 import com.example.afs.flightdataapi.model.entities.AircraftModel;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
+import jakarta.validation.ConstraintViolationException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -51,5 +54,16 @@ class AircraftsDataRepositoryTests {
         AircraftsData data = new AircraftsData("XXX", new AircraftModel("Airbus", "Airbus"), 10_000);
         repository.save(data);
         assertThat(initialCount).isLessThan(repository.count());
+    }
+
+    @Test
+    @DisplayName("The repository throws an exception when trying to save invalid data")
+    void theRepositoryThrowsAnExceptionWhenTryingToSaveInvalidData() {
+        AircraftsData data = new AircraftsData("AB", new AircraftModel("Airbus", "Airbus"), 10_000);
+        assertThatExceptionOfType(ConstraintViolationException.class).isThrownBy(() -> {
+            repository.save(data);
+            repository.flush();
+        }).withMessageContaining("length must be between 3 and 3");
+
     }
 }
