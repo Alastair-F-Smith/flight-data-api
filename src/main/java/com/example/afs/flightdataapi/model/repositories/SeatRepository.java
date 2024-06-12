@@ -7,7 +7,11 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface SeatRepository extends JpaRepository<Seat, SeatId> {
+
+    List<Seat> findBySeatIdAircraftCode(String aircraftCode);
 
     @Modifying
     @Transactional
