@@ -3,6 +3,8 @@ package com.example.afs.flightdataapi.controllers;
 import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
 import com.example.afs.flightdataapi.services.AircraftDataService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -15,6 +17,7 @@ import java.util.List;
 public class AircraftDataController {
 
     private final AircraftDataService aircraftDataService;
+    private Logger logger = LoggerFactory.getLogger(AircraftDataController.class);
 
     public AircraftDataController(AircraftDataService aircraftDataService) {
         this.aircraftDataService = aircraftDataService;
@@ -56,6 +59,7 @@ public class AircraftDataController {
     @DeleteMapping("/aircraft/{code}")
     public ResponseEntity<AircraftsData> deleteAircraftData(@PathVariable String code) {
         AircraftsData deleted = findByAircraftCode(code);
+        logger.debug("Found aircraft data for {}. Proceding to delete...", code);
         aircraftDataService.deleteById(code);
         return ResponseEntity.ok(deleted);
     }
