@@ -2,6 +2,7 @@ package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
 import com.example.afs.flightdataapi.controllers.advice.ErrorResponse;
+import com.example.afs.flightdataapi.model.dto.SeatDto;
 import com.example.afs.flightdataapi.model.entities.FareConditions;
 import com.example.afs.flightdataapi.model.entities.Seat;
 import com.example.afs.flightdataapi.model.entities.SeatId;
@@ -66,7 +67,7 @@ class SeatControllerIT {
             webTestClient.get()
                          .uri("/api/aircraft/{id}/seats", AIRCRAFT_CODE)
                          .exchange()
-                         .expectBodyList(Seat.class)
+                         .expectBodyList(SeatDto.class)
                          .hasSize(2);
         }
 
@@ -115,8 +116,8 @@ class SeatControllerIT {
             webTestClient.get()
                     .uri("/api/aircraft/{id}/seats/{seatNo}", AIRCRAFT_CODE, "43G")
                     .exchange()
-                    .expectBody(Seat.class)
-                    .value(seat -> assertThat(seat.getFareConditions(), is(FareConditions.ECONOMY)));
+                    .expectBody(SeatDto.class)
+                    .value(seat -> assertThat(seat.fareConditions(), is(FareConditions.ECONOMY)));
         }
 
         @Test
