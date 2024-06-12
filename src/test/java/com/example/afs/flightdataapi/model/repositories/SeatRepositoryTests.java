@@ -3,6 +3,7 @@ package com.example.afs.flightdataapi.model.repositories;
 import com.example.afs.flightdataapi.model.entities.FareConditions;
 import com.example.afs.flightdataapi.model.entities.Seat;
 import com.example.afs.flightdataapi.model.entities.SeatId;
+import com.example.afs.flightdataapi.testutils.TestConstants;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @DataJpaTest
 @Testcontainers
-@TestPropertySource(properties = {"spring.test.database.replace=none"})
-@Sql(scripts = "classpath:scripts/test-aircrafts-data-populate.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@TestPropertySource(properties = {TestConstants.PROPERTIES_DB_REPLACE_NONE})
+@Sql(scripts = TestConstants.POPULATE_SCRIPT_PATH, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class SeatRepositoryTests {
 
     @Autowired
@@ -31,8 +32,8 @@ class SeatRepositoryTests {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withInitScript("scripts/init-db.sql");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(TestConstants.POSTGRES_DOCKER_IMAGE)
+            .withInitScript(TestConstants.INIT_SCRIPT_PATH);
 
     @Test
     @DisplayName("Find all returns a list of seats")

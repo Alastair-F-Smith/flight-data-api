@@ -1,6 +1,7 @@
 package com.example.afs.flightdataapi.services;
 
 import com.example.afs.flightdataapi.model.repositories.SeatRepository;
+import com.example.afs.flightdataapi.testutils.TestConstants;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Testcontainers
-@TestPropertySource(properties = {"spring.test.database.replace=none"})
+@TestPropertySource(properties = {TestConstants.PROPERTIES_DB_REPLACE_NONE})
 @Import({AircraftDataService.class})
-@Sql(scripts = "classpath:scripts/test-aircrafts-data-populate.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = TestConstants.POPULATE_SCRIPT_PATH, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class AircraftDataServiceTests {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withInitScript("scripts/init-db.sql");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(TestConstants.POSTGRES_DOCKER_IMAGE)
+            .withInitScript(TestConstants.INIT_SCRIPT_PATH);
 
     @Autowired
     AircraftDataService aircraftDataService;
