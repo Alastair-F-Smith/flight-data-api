@@ -30,4 +30,11 @@ public class SeatController {
         return ResponseEntity.ok(seats);
     }
 
+    @GetMapping("/aircraft/{aircraftCode}/seats/{seatNo}")
+    public ResponseEntity<Seat> getSeat(@PathVariable String aircraftCode, @PathVariable String seatNo) {
+        Seat seat = seatService.findById(aircraftCode, seatNo);
+        logger.debug("Found seat number {} on aircraft {}", seatNo, aircraftCode);
+        return ResponseEntity.ok(seat);
+    }
+
 }
