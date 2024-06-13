@@ -2,6 +2,7 @@ package com.example.afs.flightdataapi.model.repositories;
 
 import com.example.afs.flightdataapi.model.entities.AircraftModel;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
+import com.example.afs.flightdataapi.model.entities.SeatId;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,11 @@ class AircraftsDataRepositoryTests {
 
     @Autowired
     AircraftsDataRepository repository;
+
+    @Autowired
+    SeatRepository seatRepository;
+    @Autowired
+    private AircraftsDataRepository aircraftsDataRepository;
 
     @Test
     @DisplayName("Repository reads data data from the database")
@@ -64,6 +70,5 @@ class AircraftsDataRepositoryTests {
             repository.save(data);
             repository.flush();
         }).withMessageContaining("length must be between 3 and 3");
-
     }
 }

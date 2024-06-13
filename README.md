@@ -69,6 +69,7 @@ The admin user also has access to the admin role, which will allow them to perfo
 To read data, send GET requests to the appropriate endpoint, including the bearer token obtained in the previous step. The following endpoints are currently available:
 
 - `api/aircraft` - details of the aircraft models available in the dataset
+- `api/aircraft/{aircraftCode}/seats` - details of the seats present in the aircraft model specified by the aircraft code
 
 
 

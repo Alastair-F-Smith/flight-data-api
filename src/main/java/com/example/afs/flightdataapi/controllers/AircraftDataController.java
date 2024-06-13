@@ -2,31 +2,30 @@ package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
-import com.example.afs.flightdataapi.model.repositories.AircraftsDataRepository;
-import org.springframework.http.HttpStatus;
+import com.example.afs.flightdataapi.services.AircraftDataService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 public class AircraftDataController {
 
-    private final AircraftsDataRepository aircraftsDataRepository;
+    private final AircraftDataService aircraftDataService;
+    private Logger logger = LoggerFactory.getLogger(AircraftDataController.class);
 
-    public AircraftDataController(AircraftsDataRepository aircraftsDataRepository) {
-        this.aircraftsDataRepository = aircraftsDataRepository;
+    public AircraftDataController(AircraftDataService aircraftDataService) {
+        this.aircraftDataService = aircraftDataService;
     }
 
     @GetMapping("/aircraft")
     public ResponseEntity<List<AircraftsData>> getAllAircraft() {
-        return ResponseEntity.ok(aircraftsDataRepository.findAll());
+        return ResponseEntity.ok(aircraftDataService.findAll());
     }
 
     @GetMapping("/aircraft/{code}")
@@ -36,13 +35,13 @@ public class AircraftDataController {
     }
 
     private AircraftsData findByAircraftCode(String code) {
-        return aircraftsDataRepository.findById(code)
-                                      .orElseThrow(() -> new DataNotFoundException(code));
+        return aircraftDataService.findById(code)
+                                  .orElseThrow(() -> new DataNotFoundException(code));
     }
 
     @PostMapping("/aircraft")
     public ResponseEntity<AircraftsData> addAircraftData(@RequestBody AircraftsData aircraftData) {
-        AircraftsData saved = aircraftsDataRepository.save(aircraftData);
+        AircraftsData saved = aircraftDataService.save(aircraftData);
         URI location = UriComponentsBuilder.fromHttpUrl("http://localhost/api/aircraft")
                                             .pathSegment(saved.getAircraftCode())
                                             .build().toUri();
@@ -60,7 +59,8 @@ public class AircraftDataController {
     @DeleteMapping("/aircraft/{code}")
     public ResponseEntity<AircraftsData> deleteAircraftData(@PathVariable String code) {
         AircraftsData deleted = findByAircraftCode(code);
-        aircraftsDataRepository.deleteById(code);
+        logger.debug("Found aircraft data for {}. Proceding to delete...", code);
+        aircraftDataService.deleteById(code);
         return ResponseEntity.ok(deleted);
     }
 }

@@ -4,7 +4,7 @@ import com.example.afs.flightdataapi.config.SecurityConfig;
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
 import com.example.afs.flightdataapi.model.entities.AircraftModel;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
-import com.example.afs.flightdataapi.model.repositories.AircraftsDataRepository;
+import com.example.afs.flightdataapi.services.AircraftDataService;
 import com.example.afs.flightdataapi.services.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +23,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.is;
@@ -38,7 +36,7 @@ class AircraftDataControllerTests {
     MockMvc mockMvc;
 
     @MockBean
-    AircraftsDataRepository aircraftsDataRepository;
+    AircraftDataService aircraftDataService;
 
     AircraftsData aircraft1;
     AircraftsData aircraft2;
@@ -71,7 +69,7 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Get aircraft data by id returns a response containing the correct data")
     void getAircraftDataByIdReturnsAResponseContainingTheCorrectData() throws Exception {
-        when(aircraftsDataRepository.findById(anyString()))
+        when(aircraftDataService.findById(anyString()))
                 .thenReturn(Optional.of(aircraft1));
 
         mockMvc.perform(get("/api/aircraft/" + aircraft1.getAircraftCode()))
@@ -87,7 +85,7 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Find all aircraft data returns correctly formatted data")
     void findAllAircraftDataReturnsCorrectlyFormattedData() throws Exception {
-        when(aircraftsDataRepository.findAll())
+        when(aircraftDataService.findAll())
                 .thenReturn(List.of(aircraft1, aircraft2));
 
         mockMvc.perform(get("/api/aircraft"))
@@ -107,7 +105,7 @@ class AircraftDataControllerTests {
     void addAircraftPassesCorrectAircraftDataToTheRepository() throws Exception {
         String json = objectMapper.writeValueAsString(aircraft1);
 
-        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+        when(aircraftDataService.save(any(AircraftsData.class)))
                 .thenReturn(aircraft1);
 
         mockMvc.perform(post("/api/aircraft")
@@ -119,7 +117,7 @@ class AircraftDataControllerTests {
                         content().json(json)
                 );
 
-        verify(aircraftsDataRepository, times(1)).save(aircraft1);
+        verify(aircraftDataService, times(1)).save(aircraft1);
     }
 
     @WithMockUser(roles = "ADMIN")
@@ -128,7 +126,7 @@ class AircraftDataControllerTests {
     void addAircraftReturnsTheCorrectLocationUrlForTheNewlyCreatedResource() throws Exception {
         String json = objectMapper.writeValueAsString(aircraft1);
 
-        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+        when(aircraftDataService.save(any(AircraftsData.class)))
                 .thenReturn(aircraft1);
 
         String expectedLocation = "http://localhost/api/aircraft/" + aircraft1.getAircraftCode();
@@ -145,7 +143,7 @@ class AircraftDataControllerTests {
     void addAircraftReturnsA403ResponseStatusWhenTheUserIsNotAnAdmin() throws Exception {
         String json = objectMapper.writeValueAsString(aircraft1);
 
-        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+        when(aircraftDataService.save(any(AircraftsData.class)))
                 .thenReturn(aircraft1);
 
         mockMvc.perform(post("/api/aircraft")
@@ -158,10 +156,10 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Update aircraft returns a response containing the updated data")
     void updateAircraftReturnsAResponseContainingTheUpdatedData() throws Exception {
-        when(aircraftsDataRepository.findById(anyString()))
+        when(aircraftDataService.findById(anyString()))
                 .thenReturn(Optional.of(aircraft1));
 
-        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+        when(aircraftDataService.save(any(AircraftsData.class)))
                 .thenAnswer(i -> i.getArgument(0, AircraftsData.class));
 
         AircraftsData updated = new AircraftsData(aircraft1.getAircraftCode(), new AircraftModel("Airbus", "Airbus"), 123456);
@@ -181,10 +179,10 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Update aircraft returns a not found status code if the ID is not found")
     void updateAircraftReturnsANotFoundStatusCodeIfTheIdIsNotFound() throws Exception {
-        when(aircraftsDataRepository.findById(anyString()))
+        when(aircraftDataService.findById(anyString()))
                 .thenReturn(Optional.empty());
 
-        when(aircraftsDataRepository.save(any(AircraftsData.class)))
+        when(aircraftDataService.save(any(AircraftsData.class)))
                 .thenAnswer(i -> i.getArgument(0, AircraftsData.class));
 
         AircraftsData updated = new AircraftsData("ZZZ", new AircraftModel("Airbus", "Airbus"), 123456);
@@ -211,7 +209,7 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Delete aircraft returns 200 status when aircraft record is found")
     void deleteAircraftReturns200StatusWhenAircraftRecordIsFound() throws Exception {
-        when(aircraftsDataRepository.findById(anyString()))
+        when(aircraftDataService.findById(anyString()))
                 .thenReturn(Optional.of(aircraft1));
 
         mockMvc.perform(delete("/api/aircraft/" + aircraft1.getAircraftCode()))
@@ -222,7 +220,7 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Delete aircraft returns a response containing data for the deleted record")
     void deleteAircraftReturnsAResponseContainingDataForTheDeletedRecord() throws Exception {
-        when(aircraftsDataRepository.findById(anyString()))
+        when(aircraftDataService.findById(anyString()))
                 .thenReturn(Optional.of(aircraft1));
 
         mockMvc.perform(delete("/api/aircraft/" + aircraft1.getAircraftCode()))
@@ -237,7 +235,7 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Delete aircraft returns an error response when an aircraft record is not found")
     void deleteAircraftReturnsAnErrorResponseWhenAnAircraftRecordIsNotFound() throws Exception {
-        when(aircraftsDataRepository.findById(anyString()))
+        when(aircraftDataService.findById(anyString()))
                 .thenReturn(Optional.empty());
 
         mockMvc.perform(delete("/api/aircraft/" + aircraft1.getAircraftCode()))
@@ -253,7 +251,7 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Delete aircraft returns a 403 status code when user is not an admin")
     void deleteAircraftReturnsA403StatusCodeWhenUserIsNotAnAdmin() throws Exception {
-        when(aircraftsDataRepository.findById(anyString()))
+        when(aircraftDataService.findById(anyString()))
                 .thenReturn(Optional.of(aircraft1));
 
         mockMvc.perform(delete("/api/aircraft/" + aircraft1.getAircraftCode()))
