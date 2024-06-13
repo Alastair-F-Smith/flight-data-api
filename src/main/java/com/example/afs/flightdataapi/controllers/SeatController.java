@@ -1,13 +1,19 @@
 package com.example.afs.flightdataapi.controllers;
 
+import com.example.afs.flightdataapi.controllers.advice.CustomValidationException;
 import com.example.afs.flightdataapi.model.dto.SeatDto;
 import com.example.afs.flightdataapi.model.entities.Seat;
 import com.example.afs.flightdataapi.services.SeatService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -16,6 +22,8 @@ public class SeatController {
 
     private final SeatService seatService;
     private final Logger logger = LoggerFactory.getLogger(SeatController.class);
+//    private final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+    private final String baseUrl = "http://localhost:8080/api";
 
     public SeatController(SeatService seatService) {
         this.seatService = seatService;
@@ -33,6 +41,20 @@ public class SeatController {
         Seat seat = seatService.findById(aircraftCode, seatNo);
         logger.debug("Found seat number {} on aircraft {}", seatNo, aircraftCode);
         return ResponseEntity.ok(SeatDto.from(seat));
+    }
+
+    @PostMapping("/aircraft/{aircraftCode}/seats")
+    public ResponseEntity<SeatDto> addSeat(@PathVariable String aircraftCode,
+                                           @Valid @RequestBody SeatDto seatDto) {
+        Seat seat = seatService.fromDto(seatDto);
+        logger.debug("Attempting to save provided seat data {}...", seatDto.seatId());
+        Seat saved = seatService.save(seat);
+        URI location = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                                           .pathSegment("aircraft", aircraftCode, "seats")
+                                           .build()
+                                           .toUri();
+        return ResponseEntity.created(location)
+                             .body(SeatDto.from(saved));
     }
 
 }

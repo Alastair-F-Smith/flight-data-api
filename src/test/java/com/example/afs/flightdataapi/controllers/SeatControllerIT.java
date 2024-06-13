@@ -6,6 +6,8 @@ import com.example.afs.flightdataapi.model.dto.SeatDto;
 import com.example.afs.flightdataapi.model.entities.FareConditions;
 import com.example.afs.flightdataapi.model.entities.Seat;
 import com.example.afs.flightdataapi.model.entities.SeatId;
+import com.example.afs.flightdataapi.model.repositories.SeatRepository;
+import com.example.afs.flightdataapi.services.SeatService;
 import com.example.afs.flightdataapi.testutils.TestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,13 +22,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -46,15 +49,18 @@ class SeatControllerIT {
     DataAccessAdvice dataAccessAdvice;
 
     @Autowired
+    SeatRepository seatRepository;
+
+    @Autowired
     WebTestClient webTestClient;
 
     final String AIRCRAFT_CODE = "773";
 
     @BeforeEach
     void setUp() {
-        webTestClient = WebTestClient.bindToController(seatController)
-                                     .controllerAdvice(dataAccessAdvice)
-                                     .build();
+        webTestClient = MockMvcWebTestClient.bindToController(seatController)
+                                            .controllerAdvice(dataAccessAdvice)
+                                            .build();
     }
 
     @Nested
@@ -102,7 +108,7 @@ class SeatControllerIT {
                          .uri("/api/aircraft/{id}/seats", "XXX")
                          .exchange()
                          .expectBody(ErrorResponse.class)
-                         .value(body -> assertThat(body.message(), containsString("XXX")));
+                         .value(body -> assertThat(body.message()).contains("XXX"));
         }
     }
 
@@ -117,7 +123,7 @@ class SeatControllerIT {
                     .uri("/api/aircraft/{id}/seats/{seatNo}", AIRCRAFT_CODE, "43G")
                     .exchange()
                     .expectBody(SeatDto.class)
-                    .value(seat -> assertThat(seat.fareConditions(), is(FareConditions.ECONOMY)));
+                    .value(seat -> assertThat(seat.fareConditions()).isEqualTo(FareConditions.ECONOMY));
         }
 
         @Test
@@ -165,7 +171,81 @@ class SeatControllerIT {
                          .uri("/api/aircraft/{id}/seats/{seatNo}", AIRCRAFT_CODE, "XXX")
                          .exchange()
                     .expectBody(ErrorResponse.class)
-                    .value(response -> assertThat(response.message(), containsString(expectedId.toString())));
+                    .value(response -> assertThat(response.message()).contains((expectedId.toString())));
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Add seat")
+    class addSeat {
+
+        @Test
+        @DisplayName("Adds the seat to the database")
+        void addsTheSeatToTheDatabase() {
+            SeatDto newSeat = new SeatDto(AIRCRAFT_CODE, "1A", FareConditions.BUSINESS);
+
+            webTestClient.post()
+                    .uri("/api/aircraft/{id}/seats", AIRCRAFT_CODE)
+                    .bodyValue(newSeat)
+                    .exchange();
+
+            Optional<Seat> addedSeat = seatRepository.findById(newSeat.seatId());
+            assertThat(addedSeat).isNotEmpty();
+        }
+
+        @Test
+        @DisplayName("On success, returns a 201 status code")
+        void onSuccessReturnsA201StatusCode() {
+            SeatDto newSeat = new SeatDto(AIRCRAFT_CODE, "1A", FareConditions.BUSINESS);
+
+            webTestClient.post()
+                         .uri("/api/aircraft/{id}/seats", AIRCRAFT_CODE)
+                         .bodyValue(newSeat)
+                         .exchange()
+                         .expectStatus()
+                         .isCreated();
+        }
+
+        @Test
+        @DisplayName("On success, returns the added seat data in the response body")
+        void onSuccessReturnsTheAddedSeatDataInTheResponseBody() {
+            SeatDto newSeat = new SeatDto(AIRCRAFT_CODE, "1A", FareConditions.BUSINESS);
+
+            webTestClient.post()
+                         .uri("/api/aircraft/{id}/seats", AIRCRAFT_CODE)
+                         .bodyValue(newSeat)
+                         .exchange()
+                         .expectBody(SeatDto.class)
+                         .isEqualTo(newSeat);
+        }
+
+        @Test
+        @DisplayName("If aircraft is not found, returns a 404 status code")
+        void ifAircraftIsNotFoundReturnsA404StatusCode() {
+            String invalidCode = "XXX";
+            SeatDto newSeat = new SeatDto(invalidCode, "1A", FareConditions.BUSINESS);
+
+            webTestClient.post()
+                         .uri("/api/aircraft/{id}/seats", invalidCode)
+                         .bodyValue(newSeat)
+                         .exchange()
+                         .expectStatus()
+                         .isNotFound();
+        }
+
+        @Test
+        @DisplayName("If the provided data is invalid, returns a 400 status code")
+        void ifTheProvidedDataIsInvalidReturnsA400StatusCode() {
+            String invalidNumber = "12345";
+            SeatDto newSeat = new SeatDto(AIRCRAFT_CODE, invalidNumber, FareConditions.BUSINESS);
+
+            webTestClient.post()
+                         .uri("/api/aircraft/{id}/seats", AIRCRAFT_CODE)
+                         .bodyValue(newSeat)
+                         .exchange()
+                         .expectStatus()
+                         .isBadRequest();
         }
 
     }
