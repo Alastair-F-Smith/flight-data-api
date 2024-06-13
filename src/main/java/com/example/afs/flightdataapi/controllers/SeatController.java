@@ -1,6 +1,7 @@
 package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.controllers.advice.CustomValidationException;
+import com.example.afs.flightdataapi.controllers.advice.MismatchedIdentifierException;
 import com.example.afs.flightdataapi.model.dto.SeatDto;
 import com.example.afs.flightdataapi.model.entities.Seat;
 import com.example.afs.flightdataapi.services.SeatService;
@@ -8,9 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -22,7 +21,6 @@ public class SeatController {
 
     private final SeatService seatService;
     private final Logger logger = LoggerFactory.getLogger(SeatController.class);
-//    private final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     private final String baseUrl = "http://localhost:8080/api";
 
     public SeatController(SeatService seatService) {
@@ -46,6 +44,9 @@ public class SeatController {
     @PostMapping("/aircraft/{aircraftCode}/seats")
     public ResponseEntity<SeatDto> addSeat(@PathVariable String aircraftCode,
                                            @Valid @RequestBody SeatDto seatDto) {
+        if (!aircraftCode.equals(seatDto.aircraftCode())) {
+            throw new MismatchedIdentifierException(aircraftCode, seatDto.aircraftCode());
+        }
         Seat seat = seatService.fromDto(seatDto);
         logger.debug("Attempting to save provided seat data {}...", seatDto.seatId());
         Seat saved = seatService.save(seat);
