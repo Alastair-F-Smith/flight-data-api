@@ -1,5 +1,6 @@
-package com.example.afs.flightdataapi.model.entities;
+package com.example.afs.flightdataapi.services.converters;
 
+import com.example.afs.flightdataapi.model.entities.FareConditions;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
