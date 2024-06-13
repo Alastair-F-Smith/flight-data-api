@@ -63,8 +63,9 @@ public class SeatService {
         return save(seat);
     }
 
-    public void deleteById(String aircraftCode, String seatNo) {
+    public Seat deleteById(String aircraftCode, String seatNo) {
         Seat seat = findById(aircraftCode, seatNo);
         seatRepository.delete(seat);
+        return seat;
     }
 }

@@ -30,6 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -246,6 +247,56 @@ class SeatControllerIT {
                          .exchange()
                          .expectStatus()
                          .isBadRequest();
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Delete seat")
+    class deleteSeat {
+
+        @Test
+        @DisplayName("Removes deleted seat from the database")
+        void removesDeletedSeatFromTheDatabase() {
+            String aircraftCode = "773";
+            String seatNo = "43G";
+
+            webTestClient.delete()
+                    .uri("/api/aircraft/{id}/seats/{seatNo}", aircraftCode, seatNo)
+                    .exchange()
+                    .expectStatus()
+                    .isOk();
+
+            assertThat(seatRepository.findById(new SeatId(aircraftCode, seatNo))).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Returns details of the deleted seat in the response body")
+        void returnsDetailsOfTheDeletedSeatInTheResponseBody() {
+            String aircraftCode = "773";
+            String seatNo = "43G";
+
+            Seat deleted = seatRepository.findById(new SeatId(aircraftCode, seatNo))
+                                         .get();
+
+            webTestClient.delete()
+                         .uri("/api/aircraft/{id}/seats/{seatNo}", aircraftCode, seatNo)
+                         .exchange()
+                         .expectBody(SeatDto.class)
+                         .isEqualTo(SeatDto.from(deleted));
+        }
+
+        @Test
+        @DisplayName("Returns a 404 status if the seat does not exist")
+        void returnsA404StatusIfTheSeatDoesNotExist() {
+            String aircraftCode = "773";
+            String seatNo = "100G";
+
+            webTestClient.delete()
+                         .uri("/api/aircraft/{id}/seats/{seatNo}", aircraftCode, seatNo)
+                         .exchange()
+                         .expectStatus()
+                         .isNotFound();
         }
 
     }

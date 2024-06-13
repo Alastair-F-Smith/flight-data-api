@@ -6,6 +6,7 @@ import com.example.afs.flightdataapi.controllers.advice.ErrorResponse;
 import com.example.afs.flightdataapi.model.dto.SeatDto;
 import com.example.afs.flightdataapi.model.entities.FareConditions;
 import com.example.afs.flightdataapi.model.entities.Seat;
+import com.example.afs.flightdataapi.model.entities.SeatId;
 import com.example.afs.flightdataapi.services.SeatService;
 import com.example.afs.flightdataapi.services.TokenService;
 import org.assertj.core.api.SoftAssertions;
@@ -391,6 +392,33 @@ class SeatControllerTests {
                          .expectBody(ErrorResponse.class)
                          .value(response -> assertThat(response.message()).contains(expectedMessage));
         }
+    }
+
+    @Nested
+    @DisplayName("Delete seat")
+    class deleteSeat {
+
+        @Test
+        @DisplayName("Returns a response status of 200")
+        void returnsAResponseStatusOf200() {
+            String aircraftCode = "ABC";
+            String seatNo = "12A";
+            Seat deleted = new Seat();
+            deleted.setSeatId(new SeatId(aircraftCode, seatNo));
+            deleted.setFareConditions(FareConditions.COMFORT);
+
+            when(seatService.deleteById(anyString(), anyString()))
+                    .thenReturn(deleted);
+
+            webTestClient.delete()
+                         .uri("/api/aircraft/{id}/seats/{seatNo}", aircraftCode, seatNo)
+                         .exchange()
+                         .expectStatus()
+                         .isOk()
+                         .expectBody(SeatDto.class)
+                         .isEqualTo(SeatDto.from(deleted));
+        }
+
     }
 
 }

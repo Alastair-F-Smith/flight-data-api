@@ -72,4 +72,11 @@ public class SeatController {
         return ResponseEntity.ok(SeatDto.from(updated));
     }
 
+    @DeleteMapping("/aircraft/{aircraftCode}/seats/{seatNo}")
+    public ResponseEntity<SeatDto> deleteSeat(@PathVariable String aircraftCode,
+                                            @PathVariable String seatNo) {
+
+        Seat deleted = seatService.deleteById(aircraftCode, seatNo);
+        return ResponseEntity.ok(SeatDto.from(deleted));
+    }
 }
