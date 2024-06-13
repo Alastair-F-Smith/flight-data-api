@@ -20,9 +20,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @WebMvcTest({SeatController.class, DataAccessAdvice.class, AuthController.class})
@@ -54,7 +51,7 @@ class SeatControllerTests {
         @Test
         @DisplayName("When provided seatNo is too long, return an error response with the appropriate message")
         void whenProvidedSeatNoIsTooLongReturnAnErrorResponseWithTheAppropriateMessage() throws Exception {
-            SeatDto invalidSeat = new SeatDto("ABC", "12345", FareConditions.BUSINESS);
+            SeatDto invalidSeat = new SeatDto("ABC", "1234B", FareConditions.BUSINESS);
 
             webTestClient.post()
                          .uri("/api/aircraft/{id}/seats", "ABC")
@@ -63,7 +60,7 @@ class SeatControllerTests {
                          .expectBody(ErrorResponse.class)
                          .value(response -> SoftAssertions.assertSoftly(softly -> {
                                                                             softly.assertThat(response.message())
-                                                                                  .contains("seatNo: rejected value '12345'");
+                                                                                  .contains("seatNo: rejected value '1234B'");
                                                                             softly.assertThat(response.statusCode())
                                                                                   .isEqualTo(400);
                                                                             softly.assertThat(response.reason())
@@ -134,7 +131,49 @@ class SeatControllerTests {
                                                                             softly.assertThat(response.statusCode())
                                                                                   .isEqualTo(400);
                                                                             softly.assertThat(response.reason())
-                                                                                  .contains(SeatDto.SEAT_NO_STARTS_WITH_DIGIT);
+                                                                                  .contains(SeatDto.SEAT_NO_PATTERN_MESSAGE);
+                                                                        }
+                         ));
+        }
+
+        @Test
+        @DisplayName("Seat number must end with an upper case letter")
+        void seatNumberMustEndWithAnUpperCaseLetter() {
+            SeatDto invalidSeatNo = new SeatDto("ABC", "12a", FareConditions.BUSINESS);
+
+            webTestClient.post()
+                         .uri("/api/aircraft/{id}/seats", "ABC")
+                         .bodyValue(invalidSeatNo)
+                         .exchange()
+                         .expectBody(ErrorResponse.class)
+                         .value(response -> SoftAssertions.assertSoftly(softly -> {
+                                                                            softly.assertThat(response.message())
+                                                                                  .contains("seatNo: rejected value '12a'");
+                                                                            softly.assertThat(response.statusCode())
+                                                                                  .isEqualTo(400);
+                                                                            softly.assertThat(response.reason())
+                                                                                  .contains(SeatDto.SEAT_NO_PATTERN_MESSAGE);
+                                                                        }
+                         ));
+        }
+
+        @Test
+        @DisplayName("Seat number must not contain more than one letter")
+        void seatNumberMustNotContainMoreThanOneLetter() {
+            SeatDto invalidSeatNo = new SeatDto("ABC", "12AB", FareConditions.BUSINESS);
+
+            webTestClient.post()
+                         .uri("/api/aircraft/{id}/seats", "ABC")
+                         .bodyValue(invalidSeatNo)
+                         .exchange()
+                         .expectBody(ErrorResponse.class)
+                         .value(response -> SoftAssertions.assertSoftly(softly -> {
+                                                                            softly.assertThat(response.message())
+                                                                                  .contains("seatNo: rejected value '12AB'");
+                                                                            softly.assertThat(response.statusCode())
+                                                                                  .isEqualTo(400);
+                                                                            softly.assertThat(response.reason())
+                                                                                  .contains(SeatDto.SEAT_NO_PATTERN_MESSAGE);
                                                                         }
                          ));
         }
@@ -240,6 +279,27 @@ class SeatControllerTests {
                                                                                   .contains(expectedMessage);
                                                                             softly.assertThat(response.statusCode())
                                                                                   .isEqualTo(400);
+                                                                        }
+                         ));
+        }
+
+        @Test
+        @DisplayName("Fare conditions cannot be null")
+        void fareConditionsCannotBeNull() {
+            SeatDto missingConditions = new SeatDto("XYZ", "12A", null);
+
+            webTestClient.post()
+                         .uri("/api/aircraft/{id}/seats", "XYZ")
+                         .bodyValue(missingConditions)
+                         .exchange()
+                         .expectBody(ErrorResponse.class)
+                         .value(response -> SoftAssertions.assertSoftly(softly -> {
+                                                                            softly.assertThat(response.message())
+                                                                                  .contains("fareConditions: rejected value 'null'");
+                                                                            softly.assertThat(response.statusCode())
+                                                                                  .isEqualTo(400);
+                                                                            softly.assertThat(response.reason())
+                                                                                  .contains(SeatDto.FARE_CONDITIONS_NOT_NULL);
                                                                         }
                          ));
         }

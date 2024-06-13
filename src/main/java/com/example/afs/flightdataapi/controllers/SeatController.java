@@ -1,6 +1,5 @@
 package com.example.afs.flightdataapi.controllers;
 
-import com.example.afs.flightdataapi.controllers.advice.CustomValidationException;
 import com.example.afs.flightdataapi.controllers.advice.MismatchedIdentifierException;
 import com.example.afs.flightdataapi.model.dto.SeatDto;
 import com.example.afs.flightdataapi.model.entities.Seat;
