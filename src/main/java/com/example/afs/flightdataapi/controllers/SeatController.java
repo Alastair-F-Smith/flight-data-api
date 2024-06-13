@@ -43,9 +43,7 @@ public class SeatController {
     @PostMapping("/aircraft/{aircraftCode}/seats")
     public ResponseEntity<SeatDto> addSeat(@PathVariable String aircraftCode,
                                            @Valid @RequestBody SeatDto seatDto) {
-        if (!aircraftCode.equals(seatDto.aircraftCode())) {
-            throw new MismatchedIdentifierException(aircraftCode, seatDto.aircraftCode());
-        }
+        checkIdentifiersMatch(aircraftCode, seatDto.aircraftCode());
         Seat seat = seatService.fromDto(seatDto);
         logger.debug("Attempting to save provided seat data {}...", seatDto.seatId());
         Seat saved = seatService.save(seat);
@@ -55,6 +53,23 @@ public class SeatController {
                                            .toUri();
         return ResponseEntity.created(location)
                              .body(SeatDto.from(saved));
+    }
+
+    private void checkIdentifiersMatch(String pathId, String bodyId) {
+        if (!pathId.equals(bodyId)) {
+            throw new MismatchedIdentifierException(pathId, bodyId);
+        }
+    }
+
+    @PutMapping("/aircraft/{aircraftCode}/seats/{seatNo}")
+    public ResponseEntity<SeatDto> editSeat(@PathVariable String aircraftCode,
+                                            @PathVariable String seatNo,
+                                            @Valid @RequestBody SeatDto seatDto) {
+        checkIdentifiersMatch(aircraftCode, seatDto.aircraftCode());
+        checkIdentifiersMatch(seatNo, seatDto.seatNo());
+
+        Seat updated = seatService.update(seatDto);
+        return ResponseEntity.ok(SeatDto.from(updated));
     }
 
 }

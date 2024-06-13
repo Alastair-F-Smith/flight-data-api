@@ -5,6 +5,7 @@ import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
 import com.example.afs.flightdataapi.controllers.advice.ErrorResponse;
 import com.example.afs.flightdataapi.model.dto.SeatDto;
 import com.example.afs.flightdataapi.model.entities.FareConditions;
+import com.example.afs.flightdataapi.model.entities.Seat;
 import com.example.afs.flightdataapi.services.SeatService;
 import com.example.afs.flightdataapi.services.TokenService;
 import org.assertj.core.api.SoftAssertions;
@@ -24,6 +25,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @WebMvcTest({SeatController.class, DataAccessAdvice.class, AuthController.class})
 @Import({TokenService.class, SecurityConfig.class})
@@ -328,6 +331,66 @@ class SeatControllerTests {
                                             .contains(Arrays.toString(FareConditions.values())));
         }
 
+    }
+
+    @Nested
+    @DisplayName("Update seat")
+    class updateSeat {
+
+        @Test
+        @DisplayName("When valid data provided returns a 200 response")
+        void whenValidDataProvidedReturnsA200Response() {
+            SeatDto validSeat = new SeatDto("XYZ", "12A", FareConditions.COMFORT);
+            Seat updated = new Seat();
+            updated.setSeatId(validSeat.seatId());
+            updated.setFareConditions(validSeat.fareConditions());
+
+            when(seatService.update(any(SeatDto.class)))
+                    .thenReturn(updated);
+
+            webTestClient.put()
+                    .uri("/api/aircraft/{id}/seats/{seatNo}", "XYZ", "12A")
+                    .bodyValue(validSeat)
+                    .exchange()
+                    .expectStatus()
+                    .isOk();
+        }
+
+        @Test
+        @DisplayName("When valid data provided, response contains updated data")
+        void whenValidDataProvidedResponseContainsUpdatedData() {
+            SeatDto validSeat = new SeatDto("XYZ", "12A", FareConditions.COMFORT);
+            Seat updated = new Seat();
+            updated.setSeatId(validSeat.seatId());
+            updated.setFareConditions(validSeat.fareConditions());
+
+            when(seatService.update(any(SeatDto.class)))
+                    .thenReturn(updated);
+
+            webTestClient.put()
+                         .uri("/api/aircraft/{id}/seats/{seatNo}", "XYZ", "12A")
+                         .bodyValue(validSeat)
+                         .exchange()
+                         .expectBody(SeatDto.class)
+                         .isEqualTo(validSeat);
+        }
+
+        @Test
+        @DisplayName("Seat number in URL path and request body must match")
+        void seatNumberInUrlPathAndRequestBodyMustMatch() {
+            SeatDto validSeat = new SeatDto("XYZ", "12A", FareConditions.COMFORT);
+
+            String expectedMessage = "Mismatch between identifier provided in path (13A) and in the request body (12A)";
+
+            webTestClient.put()
+                         .uri("/api/aircraft/{id}/seats/{seatNo}", "XYZ", "13A")
+                         .bodyValue(validSeat)
+                         .exchange()
+                         .expectStatus()
+                         .isBadRequest()
+                         .expectBody(ErrorResponse.class)
+                         .value(response -> assertThat(response.message()).contains(expectedMessage));
+        }
     }
 
 }

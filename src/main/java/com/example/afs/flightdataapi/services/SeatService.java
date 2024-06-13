@@ -57,6 +57,12 @@ public class SeatService {
         return seatRepository.save(seat);
     }
 
+    public Seat update(SeatDto seatDto) {
+        Seat seat = findById(seatDto.seatId());
+        seat.setFareConditions(seatDto.fareConditions());
+        return save(seat);
+    }
+
     public void deleteById(String aircraftCode, String seatNo) {
         Seat seat = findById(aircraftCode, seatNo);
         seatRepository.delete(seat);
