@@ -16,11 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest({SeatController.class, DataAccessAdvice.class, AuthController.class})
 @Import({TokenService.class, SecurityConfig.class})
@@ -302,6 +305,27 @@ class SeatControllerTests {
                                                                                   .contains(SeatDto.FARE_CONDITIONS_NOT_NULL);
                                                                         }
                          ));
+        }
+
+        @Test
+        @DisplayName("Invalid fare conditions values are rejected")
+        void invalidFareConditionsValuesAreRejected() {
+            String json = """
+                    {
+                        "aircraftCode": "773",
+                        "seatNo": "12A",
+                        "fareConditions": "invalid"
+                    }
+                    """;
+
+            webTestClient.post()
+                         .uri("/api/aircraft/{id}/seats", "773")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .bodyValue(json)
+                         .exchange()
+                         .expectBody(ErrorResponse.class)
+                         .value(response -> assertThat(response.message())
+                                            .contains(Arrays.toString(FareConditions.values())));
         }
 
     }
