@@ -2,7 +2,7 @@ package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
 import com.example.afs.flightdataapi.controllers.advice.ErrorResponse;
-import com.example.afs.flightdataapi.model.entities.AircraftModel;
+import com.example.afs.flightdataapi.model.entities.TranslatedField;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
 import com.example.afs.flightdataapi.testutils.TestConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,12 +16,12 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -49,11 +49,11 @@ class AircraftDataControllerIT {
 
     @BeforeEach
     void setup() {
-        webTestClient = WebTestClient.bindToController(aircraftDataController)
-                .controllerAdvice(dataAccessAdvice)
-                                     .build();
-        aircraft1 = new AircraftsData("ABC", new AircraftModel("Boeing", "Boeing"), 10000);
-        aircraft2 = new AircraftsData("123", new AircraftModel("Airbus", "Airbus"), 15000);
+        webTestClient = MockMvcWebTestClient.bindToController(aircraftDataController)
+                                            .controllerAdvice(dataAccessAdvice)
+                                            .build();
+        aircraft1 = new AircraftsData("ABC", new TranslatedField("Boeing", "Boeing"), 10000);
+        aircraft2 = new AircraftsData("123", new TranslatedField("Airbus", "Airbus"), 15000);
     }
 
     @Test
@@ -84,7 +84,7 @@ class AircraftDataControllerIT {
     @DisplayName("Get by ID returns a response containing the correct data")
     void getByIdReturnsAResponseContainingTheCorrectData() {
         String code = "773";
-        AircraftsData expected = new AircraftsData(code, new AircraftModel("Boeing", "Boeing"), 11100);
+        AircraftsData expected = new AircraftsData(code, new TranslatedField("Boeing", "Boeing"), 11100);
         webTestClient
                 .get()
                 .uri("/api/aircraft/" + code)
@@ -155,7 +155,7 @@ class AircraftDataControllerIT {
     @DisplayName("Update aircraft data correctly updates the data")
     void updateAircraftDataCorrectlyUpdatesTheData() {
         String code = "773";
-        AircraftsData update = new AircraftsData(code, new AircraftModel("Airbus", "Airbus"), 13000);
+        AircraftsData update = new AircraftsData(code, new TranslatedField("Airbus", "Airbus"), 13000);
         webTestClient
                 .put()
                 .uri("/api/aircraft/" + code)

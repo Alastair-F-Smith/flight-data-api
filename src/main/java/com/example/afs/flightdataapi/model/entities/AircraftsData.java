@@ -17,13 +17,13 @@ public class AircraftsData {
     String aircraftCode;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    AircraftModel model;
+    TranslatedField model;
 
     // Maximum flying distance in km
     @Positive
     int range;
 
-    public AircraftsData(String aircraftCode, AircraftModel model, int range) {
+    public AircraftsData(String aircraftCode, TranslatedField model, int range) {
         this.aircraftCode = aircraftCode;
         this.model = model;
         this.range = range;
@@ -45,11 +45,11 @@ public class AircraftsData {
         this.aircraftCode = aircraftCode;
     }
 
-    public AircraftModel getModel() {
+    public TranslatedField getModel() {
         return model;
     }
 
-    public void setModel(AircraftModel model) {
+    public void setModel(TranslatedField model) {
         this.model = model;
     }
 
