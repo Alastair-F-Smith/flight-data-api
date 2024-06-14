@@ -29,7 +29,7 @@ class AircraftsDataTests {
         @ValueSource(strings = {"AB", "ABCD", ""})
         @DisplayName("Creating aircraft data with a code not exactly 3 characters long is an error")
         void creatingAircraftDataWithACodeNotExactly3CharactersLongIsAnError(String code) {
-            AircraftsData data = new AircraftsData(code, new AircraftModel("test", "test"), 100);
+            AircraftsData data = new AircraftsData(code, new TranslatedField("test", "test"), 100);
             var constraintViolations =  validator.validate(data);
             assertThat(constraintViolations).hasSize(1);
         }
@@ -37,7 +37,7 @@ class AircraftsDataTests {
         @Test
         @DisplayName("Creating aircraft data with a code that is 3 characters long does not violate any constraints")
         void creatingAircraftDataWithACodeThatIs3CharactersLongDoesNotViolateAnyConstraints() {
-            AircraftsData data = new AircraftsData("123", new AircraftModel("test", "test"), 100);
+            AircraftsData data = new AircraftsData("123", new TranslatedField("test", "test"), 100);
             var constraintViolations =  validator.validate(data);
             assertThat(constraintViolations).isEmpty();
         }
@@ -51,7 +51,7 @@ class AircraftsDataTests {
         @ValueSource(ints = {0, -1, -10_000, Integer.MIN_VALUE})
         @DisplayName("Ranges that are less than or equal to 0 result in constraint violations")
         void rangesThatAreLessThanOrEqualTo0ResultInConstraintViolations(int range) {
-            AircraftsData data = new AircraftsData("123", new AircraftModel("test", "test"), range);
+            AircraftsData data = new AircraftsData("123", new TranslatedField("test", "test"), range);
             var constraintViolations =  validator.validate(data);
             assertThat(constraintViolations).hasSize(1);
         }
@@ -60,7 +60,7 @@ class AircraftsDataTests {
         @ValueSource(ints = {1, 100, 9999, Integer.MAX_VALUE})
         @DisplayName("Positive ranges do not violate constraints")
         void positiveRangesDoNotViolateConstraints(int range) {
-            AircraftsData data = new AircraftsData("123", new AircraftModel("test", "test"), range);
+            AircraftsData data = new AircraftsData("123", new TranslatedField("test", "test"), range);
             var constraintViolations =  validator.validate(data);
             assertThat(constraintViolations).isEmpty();
         }

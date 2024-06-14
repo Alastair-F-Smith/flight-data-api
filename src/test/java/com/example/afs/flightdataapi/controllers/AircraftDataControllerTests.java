@@ -2,7 +2,7 @@ package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.config.SecurityConfig;
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
-import com.example.afs.flightdataapi.model.entities.AircraftModel;
+import com.example.afs.flightdataapi.model.entities.TranslatedField;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
 import com.example.afs.flightdataapi.services.AircraftDataService;
 import com.example.afs.flightdataapi.services.TokenService;
@@ -46,8 +46,8 @@ class AircraftDataControllerTests {
 
     @BeforeEach
     void setUp() {
-        aircraft1 = new AircraftsData("ABC", new AircraftModel("Boeing", "Boeing"), 10000);
-        aircraft2 = new AircraftsData("123", new AircraftModel("Airbus", "Airbus"), 15000);
+        aircraft1 = new AircraftsData("ABC", new TranslatedField("Boeing", "Boeing"), 10000);
+        aircraft2 = new AircraftsData("123", new TranslatedField("Airbus", "Airbus"), 15000);
     }
 
     @Test
@@ -162,7 +162,7 @@ class AircraftDataControllerTests {
         when(aircraftDataService.save(any(AircraftsData.class)))
                 .thenAnswer(i -> i.getArgument(0, AircraftsData.class));
 
-        AircraftsData updated = new AircraftsData(aircraft1.getAircraftCode(), new AircraftModel("Airbus", "Airbus"), 123456);
+        AircraftsData updated = new AircraftsData(aircraft1.getAircraftCode(), new TranslatedField("Airbus", "Airbus"), 123456);
 
         mockMvc.perform(put("/api/aircraft/" + aircraft1.getAircraftCode())
                                 .content(objectMapper.writeValueAsString(updated))
@@ -185,7 +185,7 @@ class AircraftDataControllerTests {
         when(aircraftDataService.save(any(AircraftsData.class)))
                 .thenAnswer(i -> i.getArgument(0, AircraftsData.class));
 
-        AircraftsData updated = new AircraftsData("ZZZ", new AircraftModel("Airbus", "Airbus"), 123456);
+        AircraftsData updated = new AircraftsData("ZZZ", new TranslatedField("Airbus", "Airbus"), 123456);
 
         mockMvc.perform(put("/api/aircraft/" + aircraft1.getAircraftCode())
                                 .content(objectMapper.writeValueAsString(updated))
@@ -197,7 +197,7 @@ class AircraftDataControllerTests {
     @Test
     @DisplayName("Update aircraft returns a 403 status code if user is not an admin")
     void updateAircraftReturnsA403StatusCodeIfUserIsNotAnAdmin() throws Exception {
-        AircraftsData updated = new AircraftsData("ZZZ", new AircraftModel("Airbus", "Airbus"), 123456);
+        AircraftsData updated = new AircraftsData("ZZZ", new TranslatedField("Airbus", "Airbus"), 123456);
 
         mockMvc.perform(put("/api/aircraft/" + aircraft1.getAircraftCode())
                                 .content(objectMapper.writeValueAsString(updated))
@@ -243,7 +243,7 @@ class AircraftDataControllerTests {
                        status().isNotFound(),
                        jsonPath("$.message", containsString(aircraft1.getAircraftCode())),
                        jsonPath("$.statusCode", is(404)),
-                       jsonPath("$.cause", is(""))
+                       jsonPath("$.reason", is(""))
                );
     }
 
