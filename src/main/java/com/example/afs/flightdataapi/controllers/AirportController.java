@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.controllers;
 
+import com.example.afs.flightdataapi.controllers.advice.MismatchedIdentifierException;
 import com.example.afs.flightdataapi.model.dto.AirportDto;
 import com.example.afs.flightdataapi.model.entities.Airport;
 import com.example.afs.flightdataapi.services.AirportService;
@@ -45,5 +46,21 @@ public class AirportController {
 
         return ResponseEntity.created(location)
                              .body(AirportDto.from(saved));
+    }
+
+    @PutMapping("/airports/{airportCode}")
+    public ResponseEntity<AirportDto> updateAirport(@PathVariable String airportCode, @Valid @RequestBody AirportDto airportDto) {
+        if (!airportCode.equals(airportDto.airportCode())) {
+            throw new MismatchedIdentifierException(airportCode, airportDto.airportCode());
+        }
+        Airport airport = airportService.fromDto(airportDto);
+        Airport updated = airportService.save(airport);
+        return ResponseEntity.ok(AirportDto.from(updated));
+    }
+
+    @DeleteMapping("airports/{airportCode}")
+    public ResponseEntity<AirportDto> deleteAirport(@PathVariable String airportCode) {
+        Airport deleted = airportService.delete(airportCode);
+        return ResponseEntity.ok(AirportDto.from(deleted));
     }
 }

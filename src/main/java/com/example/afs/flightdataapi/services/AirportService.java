@@ -30,6 +30,12 @@ public class AirportService {
         return airportRepository.save(airport);
     }
 
+    public Airport delete(String airportCode) {
+        Airport airport = findById(airportCode);
+        airportRepository.delete(airport);
+        return airport;
+    }
+
     public Airport fromDto(AirportDto airportDto) {
         Airport saved = airportRepository.findById(airportDto.airportCode())
                 .orElse(new Airport());
