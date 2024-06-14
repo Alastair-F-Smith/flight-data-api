@@ -19,3 +19,9 @@ CREATE TABLE IF NOT EXISTS airports_data (
    coordinates point NOT NULL,
    timezone text NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS bookings (
+  book_ref character(6) NOT NULL,
+  book_date timestamp with time zone NOT NULL,
+  total_amount numeric(10,2) NOT NULL
+);
