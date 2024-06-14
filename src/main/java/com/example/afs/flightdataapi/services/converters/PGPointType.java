@@ -1,7 +1,6 @@
 package com.example.afs.flightdataapi.services.converters;
 
 import org.hibernate.Cache;
-import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.SqlTypes;
 import org.hibernate.usertype.UserType;
@@ -14,6 +13,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+/*
+ * This implementation is necessary to enable hibernate to read and write to Postgres'
+ * proprietary Point geometry type.
+ */
 public class PGPointType implements UserType<PGpoint> {
 
 
@@ -29,7 +32,7 @@ public class PGPointType implements UserType<PGpoint> {
      */
     @Override
     public int getSqlType() {
-        return Types.VARCHAR;
+        return SqlTypes.POINT;
     }
 
     /**
@@ -82,7 +85,7 @@ public class PGPointType implements UserType<PGpoint> {
         if (rs.wasNull() || rs.getObject(position) == null) {
             return null;
         } else {
-            return new PGpoint(rs.getObject(position).toString());
+            return new PGpoint(rs.getString(position));
         }
     }
 
@@ -156,7 +159,7 @@ public class PGPointType implements UserType<PGpoint> {
      */
     @Override
     public Serializable disassemble(PGpoint value) {
-        return value;
+        return deepCopy(value);
     }
 
     /**
