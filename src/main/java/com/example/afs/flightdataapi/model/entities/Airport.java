@@ -8,7 +8,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 import org.hibernate.validator.constraints.Length;
-import org.locationtech.jts.geom.Point;
 import org.postgresql.geometric.PGpoint;
 import java.util.TimeZone;
 
@@ -66,12 +65,36 @@ public class Airport {
         this.airportName = airportName;
     }
 
+    public void setAirportName(@NotBlank String airportName, SupportedLanguages language) {
+        if (this.airportName == null) {
+            this.airportName = TranslatedField.fromPartial(airportName, language);
+        } else {
+            this.airportName = this.airportName.with(airportName, language);
+        }
+    }
+
+    public void setAirportName(@NotBlank String airportName) {
+        setAirportName(airportName, SupportedLanguages.ENGLISH);
+    }
+
     public @NotNull TranslatedField getCity() {
         return city;
     }
 
     public void setCity(@NotNull TranslatedField city) {
         this.city = city;
+    }
+
+    public void setCity(@NotBlank String city, SupportedLanguages language) {
+        if (this.city == null) {
+            this.city = TranslatedField.fromPartial(city, language);
+        } else {
+            this.city = this.city.with(city, language);
+        }
+    }
+
+    public void setCity(@NotBlank String city) {
+        setCity(city, SupportedLanguages.ENGLISH);
     }
 
     public @NotNull PGpoint getCoordinates() {
