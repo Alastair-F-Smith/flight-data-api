@@ -1,8 +1,6 @@
 package com.example.afs.flightdataapi.model.repositories;
 
-import com.example.afs.flightdataapi.model.entities.Booking;
-import com.example.afs.flightdataapi.model.entities.ContactData;
-import com.example.afs.flightdataapi.model.entities.Ticket;
+import com.example.afs.flightdataapi.model.entities.*;
 import com.example.afs.flightdataapi.testutils.TestConstants;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -39,11 +38,18 @@ class TicketRepositoryTests {
     @Autowired
     BookingRepository bookingRepository;
 
+    @Autowired
+    FlightRepository flightRepository;
+
+    @Autowired
+    TicketFlightsRepository ticketFlightsRepository;
+
     @Test
     @DisplayName("Can retrieve a non-empty list of tickets from the repository")
     void canRetrieveANonEmptyListOfTicketsFromTheRepository() {
         List<Ticket> tickets = ticketRepository.findAll();
         assertThat(tickets).isNotEmpty();
+        System.out.println(tickets);
     }
 
     @Test
@@ -57,6 +63,31 @@ class TicketRepositoryTests {
 
         assertThat(ticketRepository.count()).isEqualTo(3);
         assertThat(ticketRepository.findById("0000123456789")).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("Can associate a ticket with a flight and save it to the repository")
+    void canAssociateATicketWithAFlightAndSaveItToTheRepository() {
+        Booking booking = new Booking("00055A", ZonedDateTime.now(), BigDecimal.valueOf(5_000));
+        bookingRepository.save(booking);
+        ContactData contactData = new ContactData("alice.jones@email.com", "+448080123456");
+        Flight flight = flightRepository.findById(1).get();
+
+        // Save ticket with no associated flight data
+        Ticket ticket = new Ticket("0000123456789", booking, "1001 123456", "Alice Jones", contactData);
+        Ticket saved = ticketRepository.save(ticket);
+
+        // Save ticket-flight data
+        TicketFlights ticketFlight = new TicketFlights(ticket, flight, FareConditions.COMFORT, BigDecimal.valueOf(9000));
+        ticketFlightsRepository.save(ticketFlight);
+
+        // Update the ticket with the ticket-flight data
+        ticket.setTicketFlights(List.of(ticketFlight));
+        Ticket updated = ticketRepository.save(ticket);
+
+        assertThat(ticketRepository.count()).isEqualTo(3);
+        assertThat(ticketRepository.findById("0000123456789")).isNotEmpty();
+        assertThat(saved.getTicketFlights()).isNotEmpty();
     }
 
     @Test

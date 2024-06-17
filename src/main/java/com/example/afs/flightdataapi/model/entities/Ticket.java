@@ -8,7 +8,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigInteger;
-import java.util.Random;
+import java.util.*;
 
 @Entity
 @Table(name = "tickets")
@@ -34,12 +34,17 @@ public class Ticket {
     @JdbcTypeCode(SqlTypes.JSON)
     ContactData contactData;
 
+    @OneToMany
+    @JoinColumn(name = "ticket_no")
+    List<TicketFlights> ticketFlights;
+
     public Ticket(String ticketNo, Booking bookRef, String passengerId, String passengerName, ContactData contactData) {
         this.ticketNo = ticketNo;
         this.bookRef = bookRef;
         this.passengerId = passengerId;
         this.passengerName = passengerName;
         this.contactData = contactData;
+        ticketFlights = new ArrayList<>();
     }
 
     public Ticket(Booking bookRef, String passengerName, ContactData contactData) {
@@ -48,6 +53,7 @@ public class Ticket {
         this.contactData = contactData;
         ticketNo = null;
         passengerId = generatePassengerId();
+        ticketFlights = new ArrayList<>();
     }
 
     public Ticket() {
@@ -114,6 +120,14 @@ public class Ticket {
         this.contactData = contactData;
     }
 
+    public List<TicketFlights> getTicketFlights() {
+        return ticketFlights;
+    }
+
+    public void setTicketFlights(List<TicketFlights> ticketFlights) {
+        this.ticketFlights = ticketFlights;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -132,10 +146,11 @@ public class Ticket {
     public String toString() {
         return "Ticket{" +
                 "ticketNo='" + ticketNo + '\'' +
-                ", booking=" + bookRef +
+                ", bookRef=" + bookRef +
                 ", passengerId='" + passengerId + '\'' +
                 ", passengerName='" + passengerName + '\'' +
                 ", contactData=" + contactData +
+                ", ticketFlights=" + ticketFlights +
                 '}';
     }
 }
