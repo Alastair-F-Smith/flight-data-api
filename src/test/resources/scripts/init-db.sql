@@ -25,3 +25,32 @@ CREATE TABLE IF NOT EXISTS bookings (
   book_date timestamp with time zone NOT NULL,
   total_amount numeric(10,2) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS tickets (
+         ticket_no character(13) NOT NULL,
+         book_ref character(6) NOT NULL,
+         passenger_id character varying(20) NOT NULL,
+         passenger_name text NOT NULL,
+         contact_data jsonb
+);
+
+-- ALTER TABLE ONLY aircrafts_data
+--     ADD CONSTRAINT aircrafts_pkey PRIMARY KEY (aircraft_code);
+
+ALTER TABLE ONLY airports_data
+    ADD CONSTRAINT airports_data_pkey PRIMARY KEY (airport_code);
+
+ALTER TABLE ONLY seats
+    ADD CONSTRAINT seats_pkey PRIMARY KEY (aircraft_code, seat_no);
+
+ALTER TABLE ONLY seats
+    ADD CONSTRAINT seats_aircraft_code_fkey FOREIGN KEY (aircraft_code) REFERENCES aircrafts_data(aircraft_code) ON DELETE CASCADE;
+
+ALTER TABLE ONLY bookings
+    ADD CONSTRAINT bookings_pkey PRIMARY KEY (book_ref);
+
+ALTER TABLE ONLY tickets
+    ADD CONSTRAINT tickets_pkey PRIMARY KEY (ticket_no);
+
+ALTER TABLE ONLY tickets
+    ADD CONSTRAINT tickets_book_ref_fkey FOREIGN KEY (book_ref) REFERENCES bookings(book_ref);

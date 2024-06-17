@@ -2,6 +2,7 @@ DELETE FROM aircrafts_data;
 DELETE FROM seats;
 DELETE FROM airports_data;
 DELETE FROM bookings;
+DELETE FROM tickets;
 
 INSERT INTO aircrafts_data VALUES ('773', JSON '{"en": "Boeing", "ru": "Boeing"}', 11100);
 INSERT INTO seats VALUES ('773', '43G', 'Economy');
@@ -12,3 +13,6 @@ INSERT INTO airports_data VALUES ('BZK', JSON	'{"en": "Bryansk Airport", "ru": "
 
 INSERT INTO bookings VALUES ('000374',	'2017-08-12 10:13:00+03', 136200.00);
 INSERT INTO bookings VALUES ('00044D',	'2017-07-30 00:24:00+03', 6000.00);
+
+INSERT INTO tickets VALUES ('0005435990692',	'000374',	'9943 768646',	'EVGENIY MOROZOV',	JSON '{"phone": "+70184611504"}');
+INSERT INTO tickets VALUES ('0005435990693',	'00044D',	'9527 761134',	'VITALIY BELOV',	JSON '{"email": "belov.vitaliy.20071970@postgrespro.ru", "phone": "+70454686855"}');
