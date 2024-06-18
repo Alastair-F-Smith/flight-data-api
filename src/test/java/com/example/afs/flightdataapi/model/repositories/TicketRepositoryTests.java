@@ -77,9 +77,7 @@ class TicketRepositoryTests {
         Ticket ticket = new Ticket("0000123456789", booking, "1001 123456", "Alice Jones", contactData);
         Ticket saved = ticketRepository.save(ticket);
 
-        // Save ticket-flight data
         TicketFlights ticketFlight = new TicketFlights(ticket, flight, FareConditions.COMFORT, BigDecimal.valueOf(9000));
-        ticketFlightsRepository.save(ticketFlight);
 
         // Update the ticket with the ticket-flight data
         ticket.setTicketFlights(List.of(ticketFlight));

@@ -12,7 +12,7 @@ public class TicketFlights {
     @EmbeddedId
     private TicketFlightsId ticketFlightsId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_no")
     @MapsId("ticketNo")
     private Ticket ticket;

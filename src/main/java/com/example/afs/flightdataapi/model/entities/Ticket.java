@@ -34,7 +34,7 @@ public class Ticket {
     @JdbcTypeCode(SqlTypes.JSON)
     ContactData contactData;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "ticket_no")
     List<TicketFlights> ticketFlights;
 
@@ -121,11 +121,15 @@ public class Ticket {
     }
 
     public List<TicketFlights> getTicketFlights() {
-        return ticketFlights;
+        return new ArrayList<>(this.ticketFlights);
     }
 
     public void setTicketFlights(List<TicketFlights> ticketFlights) {
         this.ticketFlights = ticketFlights;
+    }
+
+    public void addTicketFlight(TicketFlights ticketFlight) {
+        this.ticketFlights.add(ticketFlight);
     }
 
     @Override
