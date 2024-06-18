@@ -17,13 +17,9 @@ import java.util.List;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
-    private final TicketFlightsRepository ticketFlightsRepository;
-    private final FlightService flightService;
 
-    public TicketService(TicketRepository ticketRepository, TicketFlightsRepository ticketFlightsRepository, FlightService flightService) {
+    public TicketService(TicketRepository ticketRepository) {
         this.ticketRepository = ticketRepository;
-        this.ticketFlightsRepository = ticketFlightsRepository;
-        this.flightService = flightService;
     }
 
     public List<Ticket> findAll() {
@@ -39,6 +35,10 @@ public class TicketService {
         return ticketRepository.findByFlightId(flightId);
     }
 
+    public List<Ticket> findByBookRef(String bookRef) {
+        return ticketRepository.findByBookRefBookRef(bookRef);
+    }
+
     @Transactional
     public Ticket save(Ticket ticket) {
         if (ticket.getTicketNo() == null) {
@@ -48,13 +48,10 @@ public class TicketService {
     }
 
     @Transactional
-    public Ticket addFlight(String ticketNo, int flightId, FareConditions fareConditions, BigDecimal amount) {
-        Ticket ticket = findById(ticketNo);
-        Flight flight = flightService.findById(flightId);
-        TicketFlights ticketFlight = new TicketFlights(ticket, flight, fareConditions, amount);
-        ticketFlightsRepository.save(ticketFlight);
-        ticket.addTicketFlight(ticketFlight);
-        return ticketRepository.save(ticket);
+    public List<Ticket> deleteByBookRef(String bookRef) {
+        List<Ticket> tickets = findByBookRef(bookRef);
+        delete(tickets);
+        return tickets;
     }
 
     public Ticket delete(String ticketNo) {

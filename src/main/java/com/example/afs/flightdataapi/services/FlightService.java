@@ -4,6 +4,7 @@ import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
 import com.example.afs.flightdataapi.model.entities.Flight;
 import com.example.afs.flightdataapi.model.entities.Ticket;
 import com.example.afs.flightdataapi.model.repositories.FlightRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,11 +13,9 @@ import java.util.List;
 public class FlightService {
 
     private final FlightRepository flightRepository;
-    private final TicketService ticketService;
 
-    public FlightService(FlightRepository flightRepository, TicketService ticketService) {
+    public FlightService(FlightRepository flightRepository) {
         this.flightRepository = flightRepository;
-        this.ticketService = ticketService;
     }
 
     public List<Flight> findAll() {
@@ -32,10 +31,7 @@ public class FlightService {
         return flightRepository.save(flight);
     }
 
-    public Flight delete(int flightId) {
-        Flight flight = findById(flightId);
-        List<Ticket> tickets = ticketService.findByFlightId(flightId);
-        ticketService.delete(tickets);
+    public Flight delete(Flight flight) {
         flightRepository.delete(flight);
         return flight;
     }

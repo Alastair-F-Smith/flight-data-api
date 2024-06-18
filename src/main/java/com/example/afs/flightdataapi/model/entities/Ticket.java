@@ -34,8 +34,7 @@ public class Ticket {
     @JdbcTypeCode(SqlTypes.JSON)
     ContactData contactData;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "ticket_no")
+    @OneToMany(mappedBy = "ticketFlightsId.ticketNo", cascade = CascadeType.ALL, orphanRemoval = true)
     List<TicketFlights> ticketFlights;
 
     public Ticket(String ticketNo, Booking bookRef, String passengerId, String passengerName, ContactData contactData) {

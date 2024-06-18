@@ -5,10 +5,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.ZonedDateTime;
+import java.util.Random;
 
 @Entity
 @Table(name = "bookings")
@@ -32,6 +35,16 @@ public class Booking {
     }
 
     public Booking() {
+        this.bookRef = generateBookRef();
+        this.bookDate = ZonedDateTime.now();
+        this.totalAmount = BigDecimal.ZERO;
+    }
+
+    public static String generateBookRef() {
+        Random random = new Random();
+        BigInteger refNum = new BigInteger(24, random);
+        String hex = Integer.toHexString(refNum.intValue()).toUpperCase();
+        return StringUtils.leftPad(hex, 6, '0');
     }
 
     public @NotBlank @Length(min = 6, max = 6) String getBookRef() {

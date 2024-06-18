@@ -19,4 +19,5 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
             and tf.ticketFlightsId.flightId = :flightId
             """)
     List<Ticket> findByFlightId(int flightId);
+
 }
