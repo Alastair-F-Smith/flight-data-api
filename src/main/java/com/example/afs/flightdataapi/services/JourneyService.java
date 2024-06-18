@@ -1,14 +1,15 @@
 package com.example.afs.flightdataapi.services;
 
-import com.example.afs.flightdataapi.model.entities.FareConditions;
-import com.example.afs.flightdataapi.model.entities.Flight;
-import com.example.afs.flightdataapi.model.entities.Ticket;
-import com.example.afs.flightdataapi.model.entities.TicketFlights;
+import com.example.afs.flightdataapi.model.dto.BookingDto;
+import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
+import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
+import com.example.afs.flightdataapi.model.entities.*;
 import com.example.afs.flightdataapi.model.repositories.TicketFlightsRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,6 +25,15 @@ public class JourneyService {
         this.flightService = flightService;
         this.bookingService = bookingService;
         this.ticketFlightsRepository = ticketFlightsRepository;
+    }
+
+    public BookingDto toBookingDto(Booking booking) {
+        List<PersonalDetailsDto> people = ticketService.findByBookRef(booking.getBookRef())
+                                                       .stream()
+                                                       .map(PersonalDetailsDto::from)
+                                                       .toList();
+        List<FlightSummaryDto> flights = new ArrayList<>();
+        return BookingDto.from(booking, people, flights);
     }
 
     @Transactional

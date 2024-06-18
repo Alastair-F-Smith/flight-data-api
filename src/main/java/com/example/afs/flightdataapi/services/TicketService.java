@@ -1,16 +1,13 @@
 package com.example.afs.flightdataapi.services;
 
 import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
-import com.example.afs.flightdataapi.model.entities.FareConditions;
-import com.example.afs.flightdataapi.model.entities.Flight;
+import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
+import com.example.afs.flightdataapi.model.entities.Booking;
 import com.example.afs.flightdataapi.model.entities.Ticket;
-import com.example.afs.flightdataapi.model.entities.TicketFlights;
-import com.example.afs.flightdataapi.model.repositories.TicketFlightsRepository;
 import com.example.afs.flightdataapi.model.repositories.TicketRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -37,6 +34,12 @@ public class TicketService {
 
     public List<Ticket> findByBookRef(String bookRef) {
         return ticketRepository.findByBookRefBookRef(bookRef);
+    }
+
+    @Transactional
+    public Ticket save(Booking booking, PersonalDetailsDto person) {
+        Ticket ticket = new Ticket(booking, person.name(), person.contactDetails());
+        return save(ticket);
     }
 
     @Transactional

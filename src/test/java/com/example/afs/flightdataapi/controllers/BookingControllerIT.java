@@ -1,8 +1,11 @@
 package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
+import com.example.afs.flightdataapi.model.dto.BookingDto;
+import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
 import com.example.afs.flightdataapi.model.entities.Booking;
 import com.example.afs.flightdataapi.model.repositories.BookingRepository;
+import com.example.afs.flightdataapi.model.repositories.TicketRepository;
 import com.example.afs.flightdataapi.testutils.TestConstants;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +48,9 @@ class BookingControllerIT {
     @Autowired
     BookingRepository bookingRepository;
 
+    @Autowired
+    TicketRepository ticketRepository;
+
     @BeforeEach
     void setUp() {
         webTestClient = MockMvcWebTestClient.bindToController(bookingController)
@@ -73,8 +79,8 @@ class BookingControllerIT {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(Booking.class)
-                .value(booking -> assertThat(booking.getBookRef()).isEqualTo(bookRef));
+                .expectBody(BookingDto.class)
+                .value(booking -> assertThat(booking.bookRef()).isEqualTo(bookRef));
     }
 
     @Test
@@ -96,12 +102,40 @@ class BookingControllerIT {
                 .exchange()
                 .expectStatus()
                 .isCreated()
-                .expectBody(Booking.class)
+                .expectBody(BookingDto.class)
                 .value(booking -> SoftAssertions.assertSoftly(softly -> {
-                    softly.assertThat(booking.getBookRef()).isNotEmpty();
-                    softly.assertThat(booking.getBookDate()).isBetween(now.minusMinutes(1), now.plusMinutes(1));
-                    softly.assertThat(booking.getTotalAmount()).isEqualTo(BigDecimal.ZERO);
+                    softly.assertThat(booking.bookRef()).isNotEmpty();
+                    softly.assertThat(booking.bookDate()).isBetween(now.minusMinutes(1), now.plusMinutes(1));
+                    softly.assertThat(booking.totalAmount()).isEqualTo(BigDecimal.ZERO);
                 }));
+    }
+
+    @Test
+    @DisplayName("Add person returns booking details with the new person added")
+    void addPersonReturnsBookingDetailsWithTheNewPersonAdded() {
+        PersonalDetailsDto person = new PersonalDetailsDto("John", "john@email.com", "12345678");
+        String bookRef = "00044D";
+        webTestClient.post()
+                .uri("/api/bookings/{bookRef}", bookRef)
+                .bodyValue(person)
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectBody(BookingDto.class)
+                .value(booking -> assertThat(booking.people()).contains(person));
+    }
+
+    @Test
+    @DisplayName("Add person results in a new ticket being stored")
+    void addPersonResultsInANewTicketBeingStored() {
+        PersonalDetailsDto person = new PersonalDetailsDto("John", "john@email.com", "12345678");
+        String bookRef = "00044D";
+        webTestClient.post()
+                     .uri("/api/bookings/{bookRef}", bookRef)
+                     .bodyValue(person)
+                     .exchange();
+
+        assertThat(ticketRepository.count()).isEqualTo(3);
     }
 
     @Test

@@ -1,8 +1,11 @@
+DELETE FROM ticket_flights;
+DELETE FROM tickets;
+DELETE FROM bookings;
+DELETE FROM flights;
 DELETE FROM aircrafts_data;
 DELETE FROM seats;
 DELETE FROM airports_data;
-DELETE FROM bookings;
-DELETE FROM tickets;
+ALTER SEQUENCE flights_flight_id_seq RESTART;
 
 INSERT INTO aircrafts_data VALUES ('773', JSON '{"en": "Boeing", "ru": "Boeing"}', 11100);
 INSERT INTO seats VALUES ('773', '43G', 'Economy');

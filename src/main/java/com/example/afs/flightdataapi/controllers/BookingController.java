@@ -1,7 +1,12 @@
 package com.example.afs.flightdataapi.controllers;
 
+import com.example.afs.flightdataapi.model.dto.BookingDto;
+import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
 import com.example.afs.flightdataapi.model.entities.Booking;
+import com.example.afs.flightdataapi.model.entities.Ticket;
 import com.example.afs.flightdataapi.services.BookingService;
+import com.example.afs.flightdataapi.services.JourneyService;
+import com.example.afs.flightdataapi.services.TicketService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -14,9 +19,13 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final TicketService ticketService;
+    private final JourneyService journeyService;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, TicketService ticketService, JourneyService journeyService) {
         this.bookingService = bookingService;
+        this.ticketService = ticketService;
+        this.journeyService = journeyService;
     }
 
     @GetMapping("/bookings")
@@ -26,9 +35,9 @@ public class BookingController {
     }
 
     @GetMapping("/bookings/{bookRef}")
-    public ResponseEntity<Booking> getBookingByRef(@PathVariable String bookRef) {
+    public ResponseEntity<BookingDto> getBookingByRef(@PathVariable String bookRef) {
         Booking booking = bookingService.findById(bookRef);
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(journeyService.toBookingDto(booking));
     }
 
     /*
@@ -37,13 +46,27 @@ public class BookingController {
      * to begin adding tickets.
      */
     @PostMapping("/bookings")
-    public ResponseEntity<Booking> createBooking() {
+    public ResponseEntity<BookingDto> createBooking() {
         Booking saved = bookingService.create();
-        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/api")
-                                      .pathSegment("bookings", saved.getBookRef())
-                                      .build().toUri();
+        URI uri = bookingUri(saved.getBookRef());
         return ResponseEntity.created(uri)
-                .body(saved);
+                .body(BookingDto.from(saved));
+    }
+
+    private URI bookingUri(String bookRef) {
+        return UriComponentsBuilder.fromHttpUrl("http://localhost:8080/api")
+                                   .pathSegment("bookings", bookRef)
+                                   .build().toUri();
+    }
+
+    @PostMapping("/bookings/{bookRef}")
+    public ResponseEntity<BookingDto> addPerson(@PathVariable String bookRef,
+                                                @RequestBody PersonalDetailsDto person) {
+        Booking booking = bookingService.findById(bookRef);
+        ticketService.save(booking, person);
+        BookingDto bookingDto = journeyService.toBookingDto(booking);
+        return ResponseEntity.created(bookingUri(bookRef))
+                             .body(bookingDto);
     }
 
     @DeleteMapping("/bookings/{bookRef}")
