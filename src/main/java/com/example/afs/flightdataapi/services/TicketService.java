@@ -35,6 +35,10 @@ public class TicketService {
                 .orElseThrow(() -> new DataNotFoundException(ticketNo));
     }
 
+    public List<Ticket> findByFlightId(int flightId) {
+        return ticketRepository.findByFlightId(flightId);
+    }
+
     @Transactional
     public Ticket save(Ticket ticket) {
         if (ticket.getTicketNo() == null) {
@@ -57,5 +61,15 @@ public class TicketService {
         Ticket ticket = findById(ticketNo);
         ticketRepository.delete(ticket);
         return ticket;
+    }
+
+    public void delete(Ticket ticket) {
+        ticketRepository.delete(ticket);
+    }
+
+    public void delete(List<Ticket> tickets) {
+        for (var ticket : tickets) {
+            delete(ticket);
+        }
     }
 }

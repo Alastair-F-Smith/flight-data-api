@@ -95,4 +95,18 @@ class TicketRepositoryTests {
         assertThat(maxTicketNo).isEqualTo(5435990693L);
     }
 
+    @Test
+    @DisplayName("Returns a non-empty list when searching for a valid flight ID")
+    void returnsANonEmptyListWhenSearchingForAValidFlightId() {
+        List<Ticket> tickets = ticketRepository.findByFlightId(2);
+        assertThat(tickets).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("Returns an empty list when search for a flight ID that doesn't exist")
+    void returnsAnEmptyListWhenSearchForAFlightIdThatDoesnTExist() {
+        List<Ticket> tickets = ticketRepository.findByFlightId(3);
+        assertThat(tickets).isEmpty();
+    }
+
 }
