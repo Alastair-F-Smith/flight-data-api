@@ -116,13 +116,14 @@ class BookingControllerIT {
         PersonalDetailsDto person = new PersonalDetailsDto("John", "john@email.com", "12345678");
         String bookRef = "00044D";
         webTestClient.post()
-                .uri("/api/bookings/{bookRef}", bookRef)
-                .bodyValue(person)
-                .exchange()
-                .expectStatus()
-                .isCreated()
-                .expectBody(BookingDto.class)
-                .value(booking -> assertThat(booking.people()).contains(person));
+                     .uri("/api/bookings/{bookRef}", bookRef)
+                     .bodyValue(person)
+                     .exchange()
+                     .expectStatus()
+                     .isCreated()
+                     .expectBody(BookingDto.class)
+                     .value(booking -> assertThat(booking.people())
+                             .anyMatch(ticket -> person.equals(ticket.details())));
     }
 
     @Test

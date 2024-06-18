@@ -10,10 +10,10 @@ import java.util.List;
 public record BookingDto(String bookRef,
                          ZonedDateTime bookDate,
                          BigDecimal totalAmount,
-                         List<PersonalDetailsDto> people,
+                         List<TicketDto> people,
                          List<FlightSummaryDto> flights) {
 
-    public static BookingDto from(Booking booking, List<PersonalDetailsDto> people, List<FlightSummaryDto> flights) {
+    public static BookingDto from(Booking booking, List<TicketDto> people, List<FlightSummaryDto> flights) {
         return new BookingDto(booking.getBookRef(),
                               booking.getBookDate(),
                               booking.getTotalAmount(),

@@ -3,6 +3,7 @@ package com.example.afs.flightdataapi.services;
 import com.example.afs.flightdataapi.model.dto.BookingDto;
 import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
 import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
+import com.example.afs.flightdataapi.model.dto.TicketDto;
 import com.example.afs.flightdataapi.model.entities.*;
 import com.example.afs.flightdataapi.model.repositories.TicketFlightsRepository;
 import org.springframework.stereotype.Service;
@@ -28,10 +29,10 @@ public class JourneyService {
     }
 
     public BookingDto toBookingDto(Booking booking) {
-        List<PersonalDetailsDto> people = ticketService.findByBookRef(booking.getBookRef())
-                                                       .stream()
-                                                       .map(PersonalDetailsDto::from)
-                                                       .toList();
+        List<TicketDto> people = ticketService.findByBookRef(booking.getBookRef())
+                                              .stream()
+                                              .map(TicketDto::from)
+                                              .toList();
         List<FlightSummaryDto> flights = new ArrayList<>();
         return BookingDto.from(booking, people, flights);
     }
