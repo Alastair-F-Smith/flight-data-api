@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class TicketService {
 
     private final TicketRepository ticketRepository;
@@ -53,6 +54,16 @@ public class TicketService {
             ticket.setTicketNo(ticketRepository.findMaxTicketNo() + 1L);
         }
         return ticketRepository.save(ticket);
+    }
+
+    public Ticket update(String ticketNo, String bookRef, PersonalDetailsDto details) {
+        Ticket ticket  = findById(ticketNo, bookRef);
+        return update(ticket, details);
+    }
+
+    public Ticket update(Ticket ticket, PersonalDetailsDto details) {
+        ticket.updateDetails(details);
+        return save(ticket);
     }
 
     @Transactional

@@ -75,6 +75,15 @@ public class BookingController {
                              .body(bookingDto);
     }
 
+    @PatchMapping("/bookings/{bookRef}/tickets/{ticketNo}")
+    public ResponseEntity<BookingDto> editDetails(@PathVariable String bookRef,
+                                                  @PathVariable String ticketNo,
+                                                  @RequestBody PersonalDetailsDto details) {
+        ticketService.update(ticketNo, bookRef, details);
+        BookingDto bookingDto = journeyService.toBookingDto(bookRef);
+        return ResponseEntity.ok(bookingDto);
+    }
+
     @DeleteMapping("/bookings/{bookRef}/tickets/{ticketNo}")
     public ResponseEntity<BookingDto> removePerson(@PathVariable String bookRef, @PathVariable String ticketNo) {
         Ticket ticket = ticketService.findById(ticketNo, bookRef);

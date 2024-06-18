@@ -3,6 +3,7 @@ package com.example.afs.flightdataapi.controllers;
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
 import com.example.afs.flightdataapi.model.dto.BookingDto;
 import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
+import com.example.afs.flightdataapi.model.dto.TicketDto;
 import com.example.afs.flightdataapi.model.entities.Booking;
 import com.example.afs.flightdataapi.model.repositories.BookingRepository;
 import com.example.afs.flightdataapi.model.repositories.TicketRepository;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -121,8 +123,13 @@ class BookingControllerIT {
                      .expectStatus()
                      .isCreated()
                      .expectBody(BookingDto.class)
-                     .value(booking -> assertThat(booking.people())
-                             .anyMatch(ticket -> person.equals(ticket.details())));
+                     .value(booking -> assertBookingContainsPerson(booking, person))
+                .value(booking -> assertThat(booking.people()).hasSize(2));
+    }
+
+    private void assertBookingContainsPerson(BookingDto booking, PersonalDetailsDto person) {
+        assertThat(booking.people())
+                .anyMatch(ticket -> person.equals(ticket.details()));
     }
 
     @Test
@@ -136,6 +143,25 @@ class BookingControllerIT {
                      .exchange();
 
         assertThat(ticketRepository.count()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("Update details changes the personal details on a ticket")
+    void updateDetailsChangesThePersonalDetailsOnATicket() {
+        String bookRef = "000374";
+        String ticketNo = "0005435990692";
+        PersonalDetailsDto person = new PersonalDetailsDto("John", "john@email.com", "12345678");
+        TicketDto ticket = new TicketDto(ticketNo, person);
+
+        webTestClient.patch()
+                .uri("/api/bookings/{bookRef}/tickets/{ticketNo}", bookRef, ticketNo)
+                .bodyValue(person)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(BookingDto.class)
+                .value(booking -> assertThat(booking.people()).contains(ticket))
+                .value(booking -> assertThat(booking.people()).hasSize(1));
     }
 
     @Test

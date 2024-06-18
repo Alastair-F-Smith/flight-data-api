@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.model.entities;
 
+import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -73,6 +74,11 @@ public class Ticket {
         String fourDigits = StringUtils.leftPad(String.valueOf(firstPart), 4, '0');
         String sixDigits = StringUtils.leftPad(String.valueOf(secondPart), 6, '0');
         return fourDigits + " " + sixDigits;
+    }
+
+    public void updateDetails(PersonalDetailsDto details) {
+        setPassengerName(details.name());
+        setContactData(details.contactDetails());
     }
 
     public String getTicketNo() {
