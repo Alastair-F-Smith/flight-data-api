@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -137,6 +136,48 @@ class BookingControllerIT {
                      .exchange();
 
         assertThat(ticketRepository.count()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("Remove person removes the person from a booking")
+    void removePersonRemovesThePersonFromABooking() {
+        String bookRef = "000374";
+        String ticketNo = "0005435990692";
+
+        webTestClient.delete()
+                .uri("/api/bookings/{bookRef}/tickets/{ticketNo}", bookRef, ticketNo)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(BookingDto.class)
+                .value(booking -> assertThat(booking.people()).isEmpty());
+    }
+
+    @Test
+    @DisplayName("Remove person removes a ticket from the database")
+    void removePersonRemovesATicketFromTheDatabase() {
+        String bookRef = "000374";
+        String ticketNo = "0005435990692";
+
+        webTestClient.delete()
+                     .uri("/api/bookings/{bookRef}/tickets/{ticketNo}", bookRef, ticketNo)
+                     .exchange();
+
+        assertThat(ticketRepository.count()).isEqualTo(1);
+        assertThat(ticketRepository.findById(ticketNo)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Remove person returns a 404 status when the ticket and booking ref do not match")
+    void removePersonReturnsA404StatusWhenTheTicketAndBookingRefDoNotMatch() {
+        String bookRef = "00044D";
+        String ticketNo = "0005435990692";
+
+        webTestClient.delete()
+                     .uri("/api/bookings/{bookRef}/tickets/{ticketNo}", bookRef, ticketNo)
+                     .exchange()
+                     .expectStatus()
+                     .isNotFound();
     }
 
     @Test

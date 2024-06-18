@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TicketRepository extends JpaRepository<Ticket, String> {
 
@@ -19,5 +20,7 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
             and tf.ticketFlightsId.flightId = :flightId
             """)
     List<Ticket> findByFlightId(int flightId);
+
+    Optional<Ticket> findByTicketNoAndBookRefBookRef(String ticketNo, String bookRef);
 
 }

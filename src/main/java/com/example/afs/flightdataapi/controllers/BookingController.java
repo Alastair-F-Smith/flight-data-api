@@ -40,6 +40,12 @@ public class BookingController {
         return ResponseEntity.ok(journeyService.toBookingDto(booking));
     }
 
+    @GetMapping("/bookings/{bookRef}/tickets/{ticketNo}")
+    public ResponseEntity<Ticket> getTicket(@PathVariable String bookRef, @PathVariable String ticketNo) {
+        Ticket ticket = ticketService.findById(ticketNo, bookRef);
+        return ResponseEntity.ok(ticket);
+    }
+
     /*
      * Create a new booking. This generates a valid reference number and sets other
      * fields to default values. The booking returned in the response can be used
@@ -67,6 +73,14 @@ public class BookingController {
         BookingDto bookingDto = journeyService.toBookingDto(booking);
         return ResponseEntity.created(bookingUri(bookRef))
                              .body(bookingDto);
+    }
+
+    @DeleteMapping("/bookings/{bookRef}/tickets/{ticketNo}")
+    public ResponseEntity<BookingDto> removePerson(@PathVariable String bookRef, @PathVariable String ticketNo) {
+        Ticket ticket = ticketService.findById(ticketNo, bookRef);
+        ticketService.delete(ticket);
+        BookingDto bookingDto = journeyService.toBookingDto(bookRef);
+        return ResponseEntity.ok(bookingDto);
     }
 
     @DeleteMapping("/bookings/{bookRef}")

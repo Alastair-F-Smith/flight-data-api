@@ -28,6 +28,11 @@ public class TicketService {
                 .orElseThrow(() -> new DataNotFoundException(ticketNo));
     }
 
+    public Ticket findById(String ticketNo, String bookRef) {
+        return ticketRepository.findByTicketNoAndBookRefBookRef(ticketNo, bookRef)
+                .orElseThrow(() -> new DataNotFoundException(ticketNo));
+    }
+
     public List<Ticket> findByFlightId(int flightId) {
         return ticketRepository.findByFlightId(flightId);
     }

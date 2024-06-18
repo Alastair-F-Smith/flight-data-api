@@ -37,6 +37,11 @@ public class JourneyService {
         return BookingDto.from(booking, people, flights);
     }
 
+    public BookingDto toBookingDto(String bookRef) {
+        Booking booking = bookingService.findById(bookRef);
+        return toBookingDto(booking);
+    }
+
     @Transactional
     public Ticket addFlight(String ticketNo, int flightId, FareConditions fareConditions, BigDecimal amount) {
         Ticket ticket = ticketService.findById(ticketNo);
