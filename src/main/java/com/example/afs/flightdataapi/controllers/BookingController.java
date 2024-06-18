@@ -75,6 +75,18 @@ public class BookingController {
                              .body(bookingDto);
     }
 
+    @PostMapping("/bookings/{bookRef}/flights/{flightId}")
+    public ResponseEntity<BookingDto> addFlight(@PathVariable String bookRef,
+                                                @PathVariable Integer flightId) {
+        journeyService.addFlight(bookRef, flightId);
+        BookingDto bookingDto = journeyService.toBookingDto(bookRef);
+        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/api")
+                                      .pathSegment("bookings", bookRef, "flights", String.valueOf(flightId))
+                                      .build().toUri();
+        return ResponseEntity.created(uri)
+                .body(bookingDto);
+    }
+
     @PatchMapping("/bookings/{bookRef}/tickets/{ticketNo}")
     public ResponseEntity<BookingDto> editDetails(@PathVariable String bookRef,
                                                   @PathVariable String ticketNo,

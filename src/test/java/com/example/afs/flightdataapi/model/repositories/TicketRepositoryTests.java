@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.model.repositories;
 
+import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
 import com.example.afs.flightdataapi.model.entities.*;
 import com.example.afs.flightdataapi.testutils.TestConstants;
 import org.junit.jupiter.api.DisplayName;
@@ -107,6 +108,14 @@ class TicketRepositoryTests {
     void returnsAnEmptyListWhenSearchForAFlightIdThatDoesnTExist() {
         List<Ticket> tickets = ticketRepository.findByFlightId(3);
         assertThat(tickets).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Returns a non-empty list of flight summary data for a given booking ref")
+    void returnsANonEmptyListOfFlightSummaryDataForAGivenBookingRef() {
+        List<FlightSummaryDto> flightSummaries = ticketRepository.findFlightsByBookRef("00044D");
+        System.out.println(flightSummaries);
+        assertThat(flightSummaries).isNotEmpty();
     }
 
 }

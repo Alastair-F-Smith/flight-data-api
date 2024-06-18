@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class JourneyService {
 
     private final TicketService ticketService;
@@ -42,14 +43,27 @@ public class JourneyService {
         return toBookingDto(booking);
     }
 
-    @Transactional
-    public Ticket addFlight(String ticketNo, int flightId, FareConditions fareConditions, BigDecimal amount) {
-        Ticket ticket = ticketService.findById(ticketNo);
+    public List<Ticket> addFlight(String bookRef, int flightId) {
         Flight flight = flightService.findById(flightId);
+        return ticketService.findByBookRef(bookRef)
+                            .stream()
+                            .map(ticket -> addFlight(ticket, flight, FareConditions.ECONOMY,
+                                                     BigDecimal.valueOf(6700)))
+                            .toList();
+    }
+
+    public Ticket addFlight(Ticket ticket, Flight flight, FareConditions fareConditions, BigDecimal amount) {
         TicketFlights ticketFlight = new TicketFlights(ticket, flight, fareConditions, amount);
         ticketFlightsRepository.save(ticketFlight);
         ticket.addTicketFlight(ticketFlight);
         return ticketService.save(ticket);
+    }
+
+    @Transactional
+    public Ticket addFlight(String ticketNo, int flightId, FareConditions fareConditions, BigDecimal amount) {
+        Ticket ticket = ticketService.findById(ticketNo);
+        Flight flight = flightService.findById(flightId);
+        return addFlight(ticket, flight, fareConditions, amount);
     }
 
     @Transactional
