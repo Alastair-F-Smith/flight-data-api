@@ -137,6 +137,17 @@ public class Ticket {
         this.ticketFlights.add(ticketFlight);
     }
 
+    public void removeFlight(int flightId) {
+        this.ticketFlights = ticketFlights.stream()
+                                          .filter(ticketFlight -> ticketFlight.getTicketFlightsId()
+                                                                              .flightId() != flightId)
+                                          .toList();
+    }
+
+    public void removeTicketFlight(TicketFlights ticketFlights) {
+        this.ticketFlights.remove(ticketFlights);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

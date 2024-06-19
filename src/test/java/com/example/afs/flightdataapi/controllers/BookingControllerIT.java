@@ -7,6 +7,7 @@ import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
 import com.example.afs.flightdataapi.model.dto.TicketDto;
 import com.example.afs.flightdataapi.model.entities.Booking;
 import com.example.afs.flightdataapi.model.repositories.BookingRepository;
+import com.example.afs.flightdataapi.model.repositories.TicketFlightsRepository;
 import com.example.afs.flightdataapi.model.repositories.TicketRepository;
 import com.example.afs.flightdataapi.testutils.TestConstants;
 import org.assertj.core.api.SoftAssertions;
@@ -27,7 +28,6 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -52,6 +52,9 @@ class BookingControllerIT {
 
     @Autowired
     TicketRepository ticketRepository;
+
+    @Autowired
+    TicketFlightsRepository ticketFlightsRepository;
 
     @BeforeEach
     void setUp() {
@@ -257,6 +260,48 @@ class BookingControllerIT {
                      .exchange()
                      .expectStatus()
                      .isNotFound();
+    }
+
+    @Test
+    @DisplayName("Remove flight removes the specified flight from a booking")
+    void removeFlightRemovesTheSpecifiedFlightFromABooking() {
+        int flightId = 1;
+        String bookRef = "00044D";
+
+        webTestClient.delete()
+                     .uri("/api/bookings/{bookRef}/flights/{flightId}", bookRef, flightId)
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody(BookingDto.class)
+                     .value(booking -> assertThat(booking.flights()).isEmpty());
+    }
+
+    @Test
+    @DisplayName("Attempting to remove a flight that is not on a booking returns a 404 not found response")
+    void attemptingToRemoveAFlightThatIsNotOnABookingReturnsA404NotFoundResponse() {
+        int flightId = 2;
+        String bookRef = "00044D";
+
+        webTestClient.delete()
+                     .uri("/api/bookings/{bookRef}/flights/{flightId}", bookRef, flightId)
+                     .exchange()
+                     .expectStatus()
+                     .isNotFound();
+    }
+
+    @Test
+    @DisplayName("Removing a flight from a ticket deletes the record from the ticket flights join table")
+    void removingAFlightFromATicketDeletesTheRecordFromTheTicketFlightsJoinTable() {
+        int flightId = 1;
+        String bookRef = "00044D";
+        long initialCount = ticketFlightsRepository.count();
+
+        webTestClient.delete()
+                     .uri("/api/bookings/{bookRef}/flights/{flightId}", bookRef, flightId)
+                     .exchange();
+
+        assertThat(ticketFlightsRepository.count()).isLessThan(initialCount);
     }
 
     @Test

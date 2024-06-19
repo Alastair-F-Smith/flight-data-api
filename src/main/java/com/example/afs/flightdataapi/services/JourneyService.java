@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.services;
 
+import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
 import com.example.afs.flightdataapi.controllers.advice.FlightAlreadyAddedException;
 import com.example.afs.flightdataapi.model.dto.BookingDto;
 import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
@@ -77,6 +78,25 @@ public class JourneyService {
         Ticket ticket = ticketService.findById(ticketNo);
         Flight flight = flightService.findById(flightId);
         return addFlight(ticket, flight, fareConditions, amount);
+    }
+
+    /*
+     * Remove a flight from all tickets in a booking. This does not delete the flight or any of the tickets.
+     */
+    public void removeFlightFromBooking(String bookRef, int flightId) {
+        List<Ticket> tickets = ticketService.findByBookRef(bookRef);
+        for (var ticket : tickets) {
+            TicketFlights ticketFlights = findTicketFlightById(ticket.getTicketNo(), flightId);
+            ticket.removeTicketFlight(ticketFlights);
+            ticketFlightsRepository.delete(ticketFlights);
+            ticketService.save(ticket);
+        }
+    }
+
+    private TicketFlights findTicketFlightById(String ticketNo, int flightId) {
+        TicketFlightsId id = new TicketFlightsId(ticketNo, flightId);
+        return ticketFlightsRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(id));
     }
 
     @Transactional

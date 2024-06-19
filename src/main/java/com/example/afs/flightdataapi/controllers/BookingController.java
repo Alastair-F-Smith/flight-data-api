@@ -105,6 +105,14 @@ public class BookingController {
         return ResponseEntity.ok(bookingDto);
     }
 
+    @DeleteMapping("/bookings/{bookRef}/flights/{flightId}")
+    public ResponseEntity<BookingDto> removeFlight(@PathVariable String bookRef,
+                                                   @PathVariable Integer flightId) {
+        journeyService.removeFlightFromBooking(bookRef, flightId);
+        BookingDto bookingDto = journeyService.toBookingDto(bookRef);
+        return ResponseEntity.ok(bookingDto);
+    }
+
     @DeleteMapping("/bookings/{bookRef}")
     public ResponseEntity<Booking> cancelBooking(@PathVariable String bookRef) {
         Booking cancelled = bookingService.delete(bookRef);
