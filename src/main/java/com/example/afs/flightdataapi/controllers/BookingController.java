@@ -82,9 +82,10 @@ public class BookingController {
         BookingDto bookingDto = journeyService.toBookingDto(bookRef);
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/api")
                                       .pathSegment("bookings", bookRef, "flights", String.valueOf(flightId))
-                                      .build().toUri();
+                                      .build()
+                                      .toUri();
         return ResponseEntity.created(uri)
-                .body(bookingDto);
+                             .body(bookingDto);
     }
 
     @PatchMapping("/bookings/{bookRef}/tickets/{ticketNo}")

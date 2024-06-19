@@ -28,7 +28,7 @@ public class FlightService {
                 .orElseThrow(() -> new DataNotFoundException(flightId));
     }
 
-    public List<FlightSummaryDto> findByBookRef(String bookRef) {
+    public List<Flight> findByBookRef(String bookRef) {
         return flightRepository.findFlightsByBookRef(bookRef);
     }
 

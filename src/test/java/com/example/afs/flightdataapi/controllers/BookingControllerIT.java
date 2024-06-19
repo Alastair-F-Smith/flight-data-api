@@ -1,6 +1,7 @@
 package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
+import com.example.afs.flightdataapi.controllers.advice.ErrorResponse;
 import com.example.afs.flightdataapi.model.dto.BookingDto;
 import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
 import com.example.afs.flightdataapi.model.dto.TicketDto;
@@ -169,6 +170,32 @@ class BookingControllerIT {
                      .exchange();
 
         assertThat(ticketRepository.count()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("Add flight returns a response with the new flight details added to the booking")
+    void addFlightReturnsAResponseWithTheNewFlightDetailsAddedToTheBooking() {
+        int flightId = 2;
+        String bookRef = "00044D";
+        webTestClient.post()
+                     .uri("/api/bookings/{bookRef}/flights/{flightId}", bookRef, flightId)
+                     .exchange()
+                     .expectBody(BookingDto.class)
+                     .value(booking -> assertThat(booking.flights()).hasSize(2));
+    }
+
+    @Test
+    @DisplayName("Attempting to add the same flight to a booking twice will return a 400 response")
+    void attemptingToAddTheSameFlightToABookingTwiceWillReturnA400Response() {
+        int flightId = 1;
+        String bookRef = "00044D";
+        webTestClient.post()
+                     .uri("/api/bookings/{bookRef}/flights/{flightId}", bookRef, flightId)
+                     .exchange()
+                     .expectStatus()
+                     .isBadRequest()
+                     .expectBody(ErrorResponse.class)
+                     .value(response -> assertThat(response.message()).contains(String.valueOf(flightId), bookRef));
     }
 
     @Test

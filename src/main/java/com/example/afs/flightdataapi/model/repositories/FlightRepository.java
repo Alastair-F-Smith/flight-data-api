@@ -9,16 +9,10 @@ import java.util.List;
 
 public interface FlightRepository extends JpaRepository<Flight, Integer> {
     @Query("""
-select new com.example.afs.flightdataapi.model.dto.FlightSummaryDto(
-    f.flightNo,
-    f.scheduledDeparture,
-    f.scheduledArrival,
-    f.departureAirport.airportCode,
-    f.arrivalAirport.airportCode
-) from Ticket t
+select f from Ticket t
 join TicketFlights tf on t.ticketNo = tf.ticketFlightsId.ticketNo
 join Flight f on tf.ticketFlightsId.flightId = f.flightId
 where t.bookRef.bookRef = :bookRef
 """)
-    List<FlightSummaryDto> findFlightsByBookRef(String bookRef);
+    List<Flight> findFlightsByBookRef(String bookRef);
 }

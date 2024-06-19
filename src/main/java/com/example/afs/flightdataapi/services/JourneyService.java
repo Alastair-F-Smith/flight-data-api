@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.services;
 
+import com.example.afs.flightdataapi.controllers.advice.FlightAlreadyAddedException;
 import com.example.afs.flightdataapi.model.dto.BookingDto;
 import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
 import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
@@ -34,7 +35,10 @@ public class JourneyService {
                                               .stream()
                                               .map(TicketDto::from)
                                               .toList();
-        List<FlightSummaryDto> flights = flightService.findByBookRef(booking.getBookRef());
+        List<FlightSummaryDto> flights = flightService.findByBookRef(booking.getBookRef())
+                                                      .stream()
+                                                      .map(FlightSummaryDto::from)
+                                                      .toList();
         return BookingDto.from(booking, people, flights);
     }
 
@@ -44,12 +48,21 @@ public class JourneyService {
     }
 
     public List<Ticket> addFlight(String bookRef, int flightId) {
+        if (hasFlight(bookRef, flightId)) {
+            throw new FlightAlreadyAddedException(flightId, bookRef);
+        }
         Flight flight = flightService.findById(flightId);
         return ticketService.findByBookRef(bookRef)
                             .stream()
                             .map(ticket -> addFlight(ticket, flight, FareConditions.ECONOMY,
                                                      BigDecimal.valueOf(6700)))
                             .toList();
+    }
+
+    private boolean hasFlight(String bookRef, int flightId) {
+        return flightService.findByBookRef(bookRef)
+                            .stream()
+                            .anyMatch(flight -> flight.getFlightId() == flightId);
     }
 
     public Ticket addFlight(Ticket ticket, Flight flight, FareConditions fareConditions, BigDecimal amount) {
