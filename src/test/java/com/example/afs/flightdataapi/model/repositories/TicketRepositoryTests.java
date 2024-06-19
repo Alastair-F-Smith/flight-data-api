@@ -110,12 +110,4 @@ class TicketRepositoryTests {
         assertThat(tickets).isEmpty();
     }
 
-    @Test
-    @DisplayName("Returns a non-empty list of flight summary data for a given booking ref")
-    void returnsANonEmptyListOfFlightSummaryDataForAGivenBookingRef() {
-        List<FlightSummaryDto> flightSummaries = ticketRepository.findFlightsByBookRef("00044D");
-        System.out.println(flightSummaries);
-        assertThat(flightSummaries).isNotEmpty();
-    }
-
 }

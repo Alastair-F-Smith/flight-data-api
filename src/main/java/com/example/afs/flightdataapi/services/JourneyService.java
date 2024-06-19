@@ -34,7 +34,7 @@ public class JourneyService {
                                               .stream()
                                               .map(TicketDto::from)
                                               .toList();
-        List<FlightSummaryDto> flights = new ArrayList<>();
+        List<FlightSummaryDto> flights = flightService.findByBookRef(booking.getBookRef());
         return BookingDto.from(booking, people, flights);
     }
 

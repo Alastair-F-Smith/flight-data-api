@@ -85,6 +85,32 @@ class BookingControllerIT {
     }
 
     @Test
+    @DisplayName("Get by reference returns the booking with passenger details populated")
+    void getByReferenceReturnsTheBookingWithPassengerAndFlightDetailsPopulated() {
+        String bookRef = "00044D";
+        webTestClient.get()
+                     .uri("/api/bookings/{bookRef}", bookRef)
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody(BookingDto.class)
+                     .value(booking -> assertThat(booking.people()).isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("Get by reference returns the booking with flight details populated")
+    void getByReferenceReturnsTheBookingWithFlightDetailsPopulated() {
+        String bookRef = "00044D";
+        webTestClient.get()
+                     .uri("/api/bookings/{bookRef}", bookRef)
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody(BookingDto.class)
+                     .value(booking -> assertThat(booking.flights()).isNotEmpty());
+    }
+
+    @Test
     @DisplayName("Create booking correctly saves the booking to the database")
     void createBookingCorrectlySavesTheBookingToTheDatabase() {
         webTestClient.post()

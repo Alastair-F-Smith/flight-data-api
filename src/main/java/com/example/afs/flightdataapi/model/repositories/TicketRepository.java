@@ -25,18 +25,6 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
 
     Optional<Ticket> findByTicketNoAndBookRefBookRef(String ticketNo, String bookRef);
 
-    @Query("""
-select new com.example.afs.flightdataapi.model.dto.FlightSummaryDto(
-    f.flightNo,
-    f.scheduledDeparture,
-    f.scheduledArrival,
-    f.departureAirport.airportCode,
-    f.arrivalAirport.airportCode
-) from Ticket t
-join TicketFlights tf on t.ticketNo = tf.ticketFlightsId.ticketNo
-join Flight f on tf.ticketFlightsId.flightId = f.flightId
-where t.bookRef.bookRef = :bookRef
-""")
-    List<FlightSummaryDto> findFlightsByBookRef(String bookRef);
+
 
 }

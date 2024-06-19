@@ -1,6 +1,7 @@
 package com.example.afs.flightdataapi.services;
 
 import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
+import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
 import com.example.afs.flightdataapi.model.entities.Flight;
 import com.example.afs.flightdataapi.model.entities.Ticket;
 import com.example.afs.flightdataapi.model.repositories.FlightRepository;
@@ -25,6 +26,10 @@ public class FlightService {
     public Flight findById(int flightId) {
         return flightRepository.findById(flightId)
                 .orElseThrow(() -> new DataNotFoundException(flightId));
+    }
+
+    public List<FlightSummaryDto> findByBookRef(String bookRef) {
+        return flightRepository.findFlightsByBookRef(bookRef);
     }
 
     public Flight save(Flight flight) {

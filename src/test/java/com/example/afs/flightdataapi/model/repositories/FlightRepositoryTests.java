@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.model.repositories;
 
+import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
 import com.example.afs.flightdataapi.model.entities.Airport;
 import com.example.afs.flightdataapi.model.entities.Flight;
@@ -64,6 +65,14 @@ class FlightRepositoryTests {
         assertThat(flightRepository.count()).isEqualTo(3L);
         assertThat(flightRepository.findById(saved.getFlightId())).isNotEmpty();
 
+    }
+
+    @Test
+    @DisplayName("Returns a non-empty list of flight summary data for a given booking ref")
+    void returnsANonEmptyListOfFlightSummaryDataForAGivenBookingRef() {
+        List<FlightSummaryDto> flightSummaries = flightRepository.findFlightsByBookRef("00044D");
+        System.out.println(flightSummaries);
+        assertThat(flightSummaries).isNotEmpty();
     }
 
 }
