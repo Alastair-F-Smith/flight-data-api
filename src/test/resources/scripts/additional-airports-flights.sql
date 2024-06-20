@@ -1,0 +1,5 @@
+INSERT INTO airports_data VALUES ('VKO', JSON	'{"en": "Vnukovo International Airport", "ru": "Внуково"}', JSON '{"en": "Moscow", "ru": "Москва"}', '(37.2615013122999983,55.5914993286000012)', 'Europe/Moscow');
+INSERT INTO airports_data VALUES ('LED', JSON	'{"en": "Pulkovo Airport", "ru": "Пулково"}', JSON	'{"en": "St. Petersburg", "ru": "Санкт-Петербург"}', '(30.2625007629394531,59.8003005981445312)', 'Europe/Moscow');
+
+INSERT INTO flights VALUES (nextval('flights_flight_id_seq'),	'PG0229',	'2017-08-11 11:50:00+03',	'2017-08-11 12:40:00+03',	'VKO',	'LED',	'Arrived',	'773',	'2017-08-11 11:51:00+03',	'2017-08-11 12:41:00+03');
+INSERT INTO flights VALUES (nextval('flights_flight_id_seq'),	'PG0227',	'2017-08-13 09:45:00+03',	'2017-08-13 10:35:00+03',	'BZK',	'LED',	'Arrived',	'773',	'2017-08-13 09:46:00+03',	'2017-08-13 10:36:00+03');

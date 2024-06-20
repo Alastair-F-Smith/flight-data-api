@@ -16,6 +16,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 @Sql(value = TestConstants.POPULATE_SCRIPT_PATH, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -213,6 +214,60 @@ class FlightControllerIT {
                      .expectBody()
                      .jsonPath("$.content.length()").isEqualTo(1)
                      .jsonPath("$.content[0].flightId").isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Search returns partial matches to the airport name")
+    void searchReturnsPartialMatchesToTheAirportName() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("departureAirport", "bryan")
+                                            .build())
+                     .exchange()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(1)
+                     .jsonPath("$.content[0].flightId").isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Search returns partial matches to the arrival airport name")
+    void searchReturnsPartialMatchesToTheArrivalAirportName() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("arrivalAirport", "GUT")
+                                            .build())
+                     .exchange()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(1)
+                     .jsonPath("$.content[0].flightId").isEqualTo(2);
+    }
+
+    @Test
+    @Sql(scripts = {TestConstants.POPULATE_SCRIPT_PATH, "classpath:/scripts/additional-airports-flights.sql"})
+    @DisplayName("Search returns partials matches to departure city name")
+    void searchReturnsPartialsMatchesToDepartureCityName() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("departureAirport", "cow")
+                                            .build())
+                     .exchange()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(1)
+                     .jsonPath("$.content[0].flightId").isEqualTo(3);
+    }
+
+    @Test
+    @Sql(scripts = {TestConstants.POPULATE_SCRIPT_PATH, "classpath:/scripts/additional-airports-flights.sql"})
+    @DisplayName("Search returns multiple partial matches to arrival city name")
+    void searchReturnsMultiplePartialMatchesToArrivalCityName() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("arrivalAirport", "peter")
+                                            .build())
+                     .exchange()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(2)
+                     .jsonPath("$.content[0].flightId").isEqualTo(3);
     }
 
 }
