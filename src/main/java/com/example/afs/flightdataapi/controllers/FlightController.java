@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.controllers;
 
+import com.example.afs.flightdataapi.model.dto.FlightDetailsDto;
 import com.example.afs.flightdataapi.model.dto.FlightQuery;
 import com.example.afs.flightdataapi.model.dto.PagingAndSortingQuery;
 import com.example.afs.flightdataapi.model.entities.Flight;
@@ -21,20 +22,22 @@ public class FlightController {
     }
 
     @GetMapping("/flights")
-    public ResponseEntity<Page<Flight>> getFlightPage(PagingAndSortingQuery pagingQuery) {
-        Page<Flight> flights = flightService.findPage(pagingQuery.pageRequest());
+    public ResponseEntity<Page<FlightDetailsDto>> getFlightPage(PagingAndSortingQuery pagingQuery) {
+        Page<FlightDetailsDto> flights = flightService.findPage(pagingQuery.pageRequest())
+                                                      .map(FlightDetailsDto::from);
         return ResponseEntity.ok(flights);
     }
 
     @GetMapping("/flights/{flightId}")
-    public ResponseEntity<Flight> getFlightById(@PathVariable Integer flightId) {
+    public ResponseEntity<FlightDetailsDto> getFlightById(@PathVariable Integer flightId) {
         Flight flight = flightService.findById(flightId);
-        return ResponseEntity.ok(flight);
+        return ResponseEntity.ok(FlightDetailsDto.from(flight));
     }
 
     @GetMapping("flights/search")
-    public ResponseEntity<Page<Flight>> searchFlights(FlightQuery flightQuery, PagingAndSortingQuery pagingAndSortingQuery) {
-        Page<Flight> flights = flightService.search(flightQuery, pagingAndSortingQuery);
+    public ResponseEntity<Page<FlightDetailsDto>> searchFlights(FlightQuery flightQuery, PagingAndSortingQuery pagingAndSortingQuery) {
+        Page<FlightDetailsDto> flights = flightService.search(flightQuery, pagingAndSortingQuery)
+                                                      .map(FlightDetailsDto::from);
         return ResponseEntity.ok(flights);
     }
 
