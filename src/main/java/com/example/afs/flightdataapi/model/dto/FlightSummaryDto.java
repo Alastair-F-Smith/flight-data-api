@@ -3,6 +3,7 @@ package com.example.afs.flightdataapi.model.dto;
 import com.example.afs.flightdataapi.model.entities.Flight;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 public record FlightSummaryDto(String flightNo,
                                ZonedDateTime scheduledDeparture,
@@ -16,5 +17,11 @@ public record FlightSummaryDto(String flightNo,
                                     flight.getScheduledArrival(),
                                     flight.getDepartureAirport().getAirportCode(),
                                     flight.getArrivalAirport().getAirportCode());
+    }
+
+    public static List<FlightSummaryDto> from(List<Flight> flights) {
+        return flights.stream()
+                      .map(FlightSummaryDto::from)
+                      .toList();
     }
 }

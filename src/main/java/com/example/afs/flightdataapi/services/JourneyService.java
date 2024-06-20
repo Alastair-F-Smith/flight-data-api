@@ -4,7 +4,6 @@ import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
 import com.example.afs.flightdataapi.controllers.advice.FlightAlreadyAddedException;
 import com.example.afs.flightdataapi.model.dto.BookingDto;
 import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
-import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
 import com.example.afs.flightdataapi.model.dto.TicketDto;
 import com.example.afs.flightdataapi.model.entities.*;
 import com.example.afs.flightdataapi.model.repositories.TicketFlightsRepository;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,15 +30,10 @@ public class JourneyService {
     }
 
     public BookingDto toBookingDto(Booking booking) {
-        List<TicketDto> people = ticketService.findByBookRef(booking.getBookRef())
-                                              .stream()
-                                              .map(TicketDto::from)
-                                              .toList();
-        List<FlightSummaryDto> flights = flightService.findByBookRef(booking.getBookRef())
-                                                      .stream()
-                                                      .map(FlightSummaryDto::from)
-                                                      .toList();
-        return BookingDto.from(booking, people, flights);
+        List<Ticket> tickets = ticketService.findByBookRef(booking.getBookRef());
+        List<FlightSummaryDto> flights = FlightSummaryDto.from(flightService.findByBookRef(booking.getBookRef()));
+        booking.setTotalAmount(tickets);
+        return BookingDto.from(booking, TicketDto.from(tickets), flights);
     }
 
     public BookingDto toBookingDto(String bookRef) {

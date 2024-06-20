@@ -28,6 +28,8 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.withinPercentage;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -185,6 +187,18 @@ class BookingControllerIT {
                      .exchange()
                      .expectBody(BookingDto.class)
                      .value(booking -> assertThat(booking.flights()).hasSize(2));
+    }
+
+    @Test
+    @DisplayName("Add flight correctly updates the total amount of the booking")
+    void addFlightCorrectlyUpdatesTheTotalAmountOfTheBooking() {
+        int flightId = 2;
+        String bookRef = "00044D";
+        webTestClient.post()
+                     .uri("/api/bookings/{bookRef}/flights/{flightId}", bookRef, flightId)
+                     .exchange()
+                     .expectBody(BookingDto.class)
+                     .value(booking -> assertThat(booking.totalAmount()).isCloseTo(BigDecimal.valueOf(48800), withinPercentage(1)));
     }
 
     @Test

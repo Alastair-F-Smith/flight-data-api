@@ -14,8 +14,8 @@ INSERT INTO seats VALUES ('773', '11D', 'Comfort');
 INSERT INTO airports_data VALUES ('SGC', JSON '{"en": "Surgut Airport", "ru": "Сургут"}', JSON	'{"en": "Surgut", "ru": "Сургут"}',	'(73.4018020629882812,61.3437004089355469)',	'Asia/Yekaterinburg');
 INSERT INTO airports_data VALUES ('BZK', JSON	'{"en": "Bryansk Airport", "ru": "Брянск"}', JSON '{"en": "Bryansk", "ru": "Брянск"}',	'(34.1763992309999978,53.2141990661999955)',	'Europe/Moscow');
 
-INSERT INTO bookings VALUES ('000374',	'2017-08-12 10:13:00+03', 136200.00);
-INSERT INTO bookings VALUES ('00044D',	'2017-07-30 00:24:00+03', 6000.00);
+INSERT INTO bookings VALUES ('000374',	'2017-08-12 10:13:00+03', 0.00);
+INSERT INTO bookings VALUES ('00044D',	'2017-07-30 00:24:00+03', 0.00);
 
 INSERT INTO tickets VALUES ('0005435990692',	'000374',	'9943 768646',	'EVGENIY MOROZOV',	JSON '{"phone": "+70184611504"}');
 INSERT INTO tickets VALUES ('0005435990693',	'00044D',	'9527 761134',	'VITALIY BELOV',	JSON '{"email": "belov.vitaliy.20071970@postgrespro.ru", "phone": "+70454686855"}');

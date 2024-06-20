@@ -11,6 +11,7 @@ import org.hibernate.validator.constraints.Length;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Random;
 
 @Entity
@@ -69,6 +70,16 @@ public class Booking {
 
     public void setTotalAmount(@NotNull BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public void setTotalAmount(List<Ticket> tickets) {
+        List<BigDecimal> amounts = tickets.stream()
+                                          .flatMap(ticket -> ticket.getTicketFlights()
+                                                                   .stream()
+                                                                   .map(TicketFlights::getAmount))
+                                          .toList();
+        this.totalAmount = amounts.stream()
+                                  .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
