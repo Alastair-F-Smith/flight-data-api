@@ -1,23 +1,27 @@
 package com.example.afs.flightdataapi.services;
 
 import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
+import com.example.afs.flightdataapi.model.dto.FlightQuery;
 import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
+import com.example.afs.flightdataapi.model.dto.PagingAndSortingQuery;
 import com.example.afs.flightdataapi.model.entities.Flight;
+import com.example.afs.flightdataapi.model.entities.FlightSpecs;
 import com.example.afs.flightdataapi.model.entities.Ticket;
 import com.example.afs.flightdataapi.model.repositories.FlightRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
 public class FlightService {
 
     private final FlightRepository flightRepository;
+    private static final Logger logger = LoggerFactory.getLogger(FlightService.class);
 
     public FlightService(FlightRepository flightRepository) {
         this.flightRepository = flightRepository;
@@ -57,5 +61,11 @@ public class FlightService {
     public Flight delete(Flight flight) {
         flightRepository.delete(flight);
         return flight;
+    }
+
+    public Page<Flight> search(FlightQuery query, PagingAndSortingQuery paging) {
+        logger.debug("Search for flights with the query: {}", query);
+        FlightSpecs spec = new FlightSpecs(query);
+        return flightRepository.findAll(spec, paging.pageRequest());
     }
 }

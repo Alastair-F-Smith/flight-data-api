@@ -1,10 +1,7 @@
 package com.example.afs.flightdataapi.controllers;
 
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
-import com.example.afs.flightdataapi.model.entities.Flight;
 import com.example.afs.flightdataapi.testutils.TestConstants;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,10 +15,6 @@ import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -122,6 +115,104 @@ class FlightControllerIT {
                      .exchange()
                      .expectBody()
                      .jsonPath("$.content[0].flightId").isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Search with no parameters returns all flights")
+    void searchWithNoParametersReturnsAllFlights() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .build())
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Search correctly filters by departure time")
+    void searchCorrectlyFiltersByDepartureTime() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("departureTime", "2017-07-16T00:00Z")
+                                            .build())
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody()
+                     .jsonPath("$.content[0].flightId").isEqualTo(1)
+                     .jsonPath("$.content.length()").isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Search returns an empty response if criteria do not match any records")
+    void searchReturnsAnEmptyResponseIfCriteriaDoNotMatchAnyRecords() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("departureTime", "2017-07-20T00:00Z")
+                                            .build())
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody()
+                     .jsonPath("$.content").isEmpty();
+    }
+
+    @Test
+    @DisplayName("Searching by arrival time correctly filters the results")
+    void searchingByArrivalTimeCorrectlyFiltersTheResults() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("arrivalTime", "2017-08-05T20:00+03")
+                                            .build())
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(1)
+                     .jsonPath("$.content[0].flightId").isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Search by airport code returns exact matches")
+    void searchByAirportCodeReturnsExactMatches() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("departureAirport", "BZK")
+                                            .build())
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(1)
+                     .jsonPath("$.content[0].flightId").isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Searching by airport code is case-insensitive")
+    void searchingByAirportCodeIsCaseInsensitive() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("departureAirport", "bzK")
+                                            .build())
+                     .exchange()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(1)
+                     .jsonPath("$.content[0].flightId").isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Search by arrival airport returns matches")
+    void searchByArrivalAirportReturnsMatches() {
+        webTestClient.get()
+                     .uri(builder -> builder.path("/api/flights/search")
+                                            .queryParam("arrivalAirport", "bzk")
+                                            .build())
+                     .exchange()
+                     .expectBody()
+                     .jsonPath("$.content.length()").isEqualTo(1)
+                     .jsonPath("$.content[0].flightId").isEqualTo(1);
     }
 
 }

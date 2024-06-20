@@ -1,7 +1,9 @@
 package com.example.afs.flightdataapi.model.entities;
 
 
-public record TranslatedField(String en, String ru) {
+import java.io.Serializable;
+
+public record TranslatedField(String en, String ru) implements Serializable {
 
     public TranslatedField withEn(String english) {
         return new TranslatedField(english, ru);
