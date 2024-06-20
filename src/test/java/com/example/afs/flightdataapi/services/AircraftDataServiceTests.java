@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Testcontainers
 @TestPropertySource(properties = {TestConstants.PROPERTIES_DB_REPLACE_NONE})
-@Import({AircraftDataService.class})
+@Import({AircraftDataService.class, FlightService.class})
 @Sql(scripts = TestConstants.POPULATE_SCRIPT_PATH, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class AircraftDataServiceTests {
 

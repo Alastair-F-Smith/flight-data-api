@@ -12,15 +12,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class AircraftDataService {
 
     private final AircraftsDataRepository aircraftsDataRepository;
     private final SeatRepository seatRepository;
-    private final Logger logger = LoggerFactory.getLogger(AircraftDataService.class);
+    private final FlightService flightService;
+    private static final Logger logger = LoggerFactory.getLogger(AircraftDataService.class);
 
-    public AircraftDataService(AircraftsDataRepository aircraftsDataRepository, SeatRepository seatRepository) {
+    public AircraftDataService(AircraftsDataRepository aircraftsDataRepository, SeatRepository seatRepository, FlightService flightService) {
         this.aircraftsDataRepository = aircraftsDataRepository;
         this.seatRepository = seatRepository;
+        this.flightService = flightService;
     }
 
     public List<AircraftsData> findAll() {
@@ -38,8 +41,8 @@ public class AircraftDataService {
         return aircraftsDataRepository.save(aircraftsData);
     }
 
-    @Transactional
     public void deleteById(String id) {
+        flightService.deleteByAircraftCode(id);
         logger.debug("Attempting to delete aircraft data with id {}...", id);
         aircraftsDataRepository.deleteById(id);
         logger.debug("Removing associated seat data...");

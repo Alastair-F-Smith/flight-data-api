@@ -21,4 +21,6 @@ where t.bookRef.bookRef = :bookRef
     List<Flight> findFlightsByBookRef(String bookRef);
 
     Page<Flight> findByScheduledDeparture(ZonedDateTime departureTime, Pageable pageable);
+
+    List<Flight> findByAircraftCode_AircraftCode(String aircraftCode);
 }

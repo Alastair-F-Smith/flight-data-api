@@ -20,13 +20,15 @@ class AirportServiceTests {
 
     AirportRepository airportRepository;
     AirportService airportService;
+    FlightService flightService;
 
     Airport airport1;
 
     @BeforeEach
     void setUp() {
         airportRepository = mock();
-        airportService = new AirportService(airportRepository);
+        flightService = mock();
+        airportService = new AirportService(airportRepository, flightService);
 
         airport1 = new Airport("BZK",
                                new TranslatedField("Bryansk Airport", "Брянск"),

@@ -2,19 +2,16 @@ package com.example.afs.flightdataapi.services;
 
 import com.example.afs.flightdataapi.controllers.advice.DataNotFoundException;
 import com.example.afs.flightdataapi.model.dto.FlightQuery;
-import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
 import com.example.afs.flightdataapi.model.dto.PagingAndSortingQuery;
 import com.example.afs.flightdataapi.model.entities.Flight;
 import com.example.afs.flightdataapi.model.entities.FlightSpecs;
-import com.example.afs.flightdataapi.model.entities.Ticket;
 import com.example.afs.flightdataapi.model.repositories.FlightRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -63,9 +60,30 @@ public class FlightService {
         return flight;
     }
 
+    public List<Flight> delete(List<Flight> flights) {
+        flightRepository.deleteAll(flights);
+        return flights;
+    }
+
     public Page<Flight> search(FlightQuery query, PagingAndSortingQuery paging) {
         logger.debug("Search for flights with the query: {}", query);
         FlightSpecs spec = new FlightSpecs(query);
         return flightRepository.findAll(spec, paging.pageRequest());
+    }
+
+    public void deleteByAirportCode(String airportCode) {
+        List<Flight> flights = findFlightsArrivingOrDepartingFromAirport(airportCode);
+        delete(flights);
+    }
+
+    private List<Flight> findFlightsArrivingOrDepartingFromAirport(String airportCode) {
+        Specification<Flight> spec = FlightSpecs.byArrivalAirport(airportCode)
+                                                .or(FlightSpecs.byDepartureAirport(airportCode));
+        return flightRepository.findAll(spec);
+    }
+
+    public void deleteByAircraftCode(String aircraftCode) {
+        List<Flight> flights = flightRepository.findByAircraftCode_AircraftCode(aircraftCode);
+        delete(flights);
     }
 }
