@@ -3,11 +3,14 @@ package com.example.afs.flightdataapi.controllers;
 import com.example.afs.flightdataapi.model.dto.BookingDto;
 import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
 import com.example.afs.flightdataapi.model.entities.Booking;
+import com.example.afs.flightdataapi.model.entities.FareConditions;
 import com.example.afs.flightdataapi.model.entities.Ticket;
 import com.example.afs.flightdataapi.services.BookingService;
 import com.example.afs.flightdataapi.services.JourneyService;
 import com.example.afs.flightdataapi.services.TicketService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,6 +25,7 @@ public class BookingController {
     private final BookingService bookingService;
     private final TicketService ticketService;
     private final JourneyService journeyService;
+    private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
     public BookingController(BookingService bookingService, TicketService ticketService, JourneyService journeyService) {
         this.bookingService = bookingService;
@@ -78,8 +82,10 @@ public class BookingController {
 
     @PostMapping("/bookings/{bookRef}/flights/{flightId}")
     public ResponseEntity<BookingDto> addFlight(@PathVariable String bookRef,
-                                                @PathVariable Integer flightId) {
-        journeyService.addFlight(bookRef, flightId);
+                                                @PathVariable Integer flightId,
+                                                @RequestParam(required = false, defaultValue = "ECONOMY") FareConditions fareConditions) {
+        logger.debug("Adding flight {} to booking {}, with fare conditions {}", flightId, bookRef, fareConditions);
+        journeyService.addFlight(bookRef, flightId, fareConditions);
         BookingDto bookingDto = journeyService.toBookingDto(bookRef);
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/api")
                                       .pathSegment("bookings", bookRef, "flights", String.valueOf(flightId))
