@@ -7,6 +7,7 @@ import com.example.afs.flightdataapi.model.entities.Ticket;
 import com.example.afs.flightdataapi.services.BookingService;
 import com.example.afs.flightdataapi.services.JourneyService;
 import com.example.afs.flightdataapi.services.TicketService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -67,7 +68,7 @@ public class BookingController {
 
     @PostMapping("/bookings/{bookRef}")
     public ResponseEntity<BookingDto> addPerson(@PathVariable String bookRef,
-                                                @RequestBody PersonalDetailsDto person) {
+                                                @Valid @RequestBody PersonalDetailsDto person) {
         Booking booking = bookingService.findById(bookRef);
         ticketService.save(booking, person);
         BookingDto bookingDto = journeyService.toBookingDto(booking);
@@ -91,7 +92,7 @@ public class BookingController {
     @PatchMapping("/bookings/{bookRef}/tickets/{ticketNo}")
     public ResponseEntity<BookingDto> editDetails(@PathVariable String bookRef,
                                                   @PathVariable String ticketNo,
-                                                  @RequestBody PersonalDetailsDto details) {
+                                                  @Valid @RequestBody PersonalDetailsDto details) {
         ticketService.update(ticketNo, bookRef, details);
         BookingDto bookingDto = journeyService.toBookingDto(bookRef);
         return ResponseEntity.ok(bookingDto);

@@ -38,7 +38,7 @@ class BookingTests {
         t2.setTicketFlights(List.of(tf3));
 
         Booking booking = new Booking();
-        booking.setTotalAmount(List.of(t1, t2));
+        booking.calculateTotalAmount(List.of(t1, t2));
 
         assertThat(booking.getTotalAmount()).isCloseTo(BigDecimal.valueOf(9000), withinPercentage(1));
     }
