@@ -2,6 +2,8 @@ package com.example.afs.flightdataapi.services.pricing;
 
 import com.example.afs.flightdataapi.model.entities.FareConditions;
 import com.example.afs.flightdataapi.model.repositories.TicketFlightsRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,6 +18,7 @@ public class TicketPriceCalculator {
     private final TicketFlightsRepository ticketFlightsRepository;
     private final Map<Fare, BigDecimal> fares = new HashMap<>();
     private final Map<FareConditions, BigDecimal> averageFares = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(TicketPriceCalculator.class);
 
     public TicketPriceCalculator(TicketFlightsRepository ticketFlightsRepository) {
         this.ticketFlightsRepository = ticketFlightsRepository;
@@ -34,6 +37,7 @@ public class TicketPriceCalculator {
             initAverageFares();
         }
         Fare fare = new Fare(flightId, fareConditions);
+        logger.debug("Looking up price for a ticket with the following fare: {}", fare);
         return fares.getOrDefault(fare, averageFares.getOrDefault(fareConditions, BigDecimal.valueOf(19860)));
     }
 

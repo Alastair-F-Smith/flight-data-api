@@ -6,6 +6,7 @@ import com.example.afs.flightdataapi.model.dto.BookingDto;
 import com.example.afs.flightdataapi.model.dto.PersonalDetailsDto;
 import com.example.afs.flightdataapi.model.dto.TicketDto;
 import com.example.afs.flightdataapi.model.entities.Booking;
+import com.example.afs.flightdataapi.model.entities.FareConditions;
 import com.example.afs.flightdataapi.model.repositories.BookingRepository;
 import com.example.afs.flightdataapi.model.repositories.TicketFlightsRepository;
 import com.example.afs.flightdataapi.model.repositories.TicketRepository;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
@@ -29,6 +31,7 @@ import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.withinPercentage;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -212,6 +215,21 @@ class BookingControllerIT {
                      .isBadRequest()
                      .expectBody(ErrorResponse.class)
                      .value(response -> assertThat(response.message()).contains(String.valueOf(flightId), bookRef));
+    }
+
+    @Test
+    @DisplayName("The correct amount is added to the booking total when a fare condition is provided")
+    void theCorrectAmountIsAddedToTheBookingTotalWhenAFareConditionIsProvided() {
+        int flightId = 2;
+        String bookRef = "00044D";
+        webTestClient.post()
+                     .uri(builder -> builder.pathSegment("api", "bookings", bookRef, "flights", String.valueOf(flightId))
+                                            .queryParam("fareConditions", "BUSINESS")
+                                            .build())
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .exchange()
+                     .expectBody(BookingDto.class)
+                     .value(booking -> assertThat(booking.totalAmount()).isCloseTo(BigDecimal.valueOf(84200), withinPercentage(1)));
     }
 
     @Test
