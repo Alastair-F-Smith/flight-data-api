@@ -7,6 +7,7 @@ import com.example.afs.flightdataapi.model.dto.FlightSummaryDto;
 import com.example.afs.flightdataapi.model.dto.TicketDto;
 import com.example.afs.flightdataapi.model.entities.*;
 import com.example.afs.flightdataapi.model.repositories.TicketFlightsRepository;
+import com.example.afs.flightdataapi.services.pricing.TicketPriceCalculator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,12 +22,14 @@ public class JourneyService {
     private final FlightService flightService;
     private final BookingService bookingService;
     private final TicketFlightsRepository ticketFlightsRepository;
+    private final TicketPriceCalculator ticketPriceCalculator;
 
-    public JourneyService(TicketService ticketService, FlightService flightService, BookingService bookingService, TicketFlightsRepository ticketFlightsRepository) {
+    public JourneyService(TicketService ticketService, FlightService flightService, BookingService bookingService, TicketFlightsRepository ticketFlightsRepository, TicketPriceCalculator ticketPriceCalculator) {
         this.ticketService = ticketService;
         this.flightService = flightService;
         this.bookingService = bookingService;
         this.ticketFlightsRepository = ticketFlightsRepository;
+        this.ticketPriceCalculator = ticketPriceCalculator;
     }
 
     public BookingDto toBookingDto(Booking booking) {
@@ -42,14 +45,17 @@ public class JourneyService {
     }
 
     public List<Ticket> addFlight(String bookRef, int flightId) {
+        return addFlight(bookRef, flightId, FareConditions.ECONOMY);
+    }
+
+    public List<Ticket> addFlight(String bookRef, int flightId, FareConditions fareConditions) {
         if (hasFlight(bookRef, flightId)) {
             throw new FlightAlreadyAddedException(flightId, bookRef);
         }
         Flight flight = flightService.findById(flightId);
         return ticketService.findByBookRef(bookRef)
                             .stream()
-                            .map(ticket -> addFlight(ticket, flight, FareConditions.ECONOMY,
-                                                     BigDecimal.valueOf(6700)))
+                            .map(ticket -> addFlight(ticket, flight, fareConditions))
                             .toList();
     }
 
@@ -59,18 +65,12 @@ public class JourneyService {
                             .anyMatch(flight -> flight.getFlightId() == flightId);
     }
 
-    public Ticket addFlight(Ticket ticket, Flight flight, FareConditions fareConditions, BigDecimal amount) {
+    public Ticket addFlight(Ticket ticket, Flight flight, FareConditions fareConditions) {
+        BigDecimal amount = ticketPriceCalculator.getPrice(flight.getFlightId(), fareConditions);
         TicketFlights ticketFlight = new TicketFlights(ticket, flight, fareConditions, amount);
         ticketFlightsRepository.save(ticketFlight);
         ticket.addTicketFlight(ticketFlight);
         return ticketService.save(ticket);
-    }
-
-    @Transactional
-    public Ticket addFlight(String ticketNo, int flightId, FareConditions fareConditions, BigDecimal amount) {
-        Ticket ticket = ticketService.findById(ticketNo);
-        Flight flight = flightService.findById(flightId);
-        return addFlight(ticket, flight, fareConditions, amount);
     }
 
     /*

@@ -197,7 +197,7 @@ class BookingControllerIT {
                      .uri("/api/bookings/{bookRef}/flights/{flightId}", bookRef, flightId)
                      .exchange()
                      .expectBody(BookingDto.class)
-                     .value(booking -> assertThat(booking.totalAmount()).isCloseTo(BigDecimal.valueOf(48800), withinPercentage(1)));
+                     .value(booking -> assertThat(booking.totalAmount()).isCloseTo(BigDecimal.valueOf(61960), withinPercentage(1)));
     }
 
     @Test

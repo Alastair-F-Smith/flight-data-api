@@ -34,7 +34,7 @@ public class TicketPriceCalculator {
             initAverageFares();
         }
         Fare fare = new Fare(flightId, fareConditions);
-        return fares.getOrDefault(fare, averageFares.get(fareConditions));
+        return fares.getOrDefault(fare, averageFares.getOrDefault(fareConditions, BigDecimal.valueOf(19860)));
     }
 
 
