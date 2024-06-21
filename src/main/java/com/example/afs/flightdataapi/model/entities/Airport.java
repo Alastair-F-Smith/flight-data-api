@@ -47,6 +47,10 @@ public class Airport {
     }
 
     public Airport() {
+        this.airportName = new TranslatedField("", "");
+        this.city = new TranslatedField("", "");
+        this.coordinates = new PGpoint();
+        this.timezone = TimeZone.getDefault();
     }
 
     public @NotBlank(message = AIRPORT_CODE_NULL_MESSAGE) @Length(min = 3, max = 3, message = AIRPORT_CODE_LENGTH_MESSAGE) String getAirportCode() {
