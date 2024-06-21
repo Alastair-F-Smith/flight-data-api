@@ -72,7 +72,7 @@ public class Booking {
         this.totalAmount = totalAmount;
     }
 
-    public void setTotalAmount(List<Ticket> tickets) {
+    public void calculateTotalAmount(List<Ticket> tickets) {
         List<BigDecimal> amounts = tickets.stream()
                                           .flatMap(ticket -> ticket.getTicketFlights()
                                                                    .stream()

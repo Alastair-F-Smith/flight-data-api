@@ -32,7 +32,7 @@ public class JourneyService {
     public BookingDto toBookingDto(Booking booking) {
         List<Ticket> tickets = ticketService.findByBookRef(booking.getBookRef());
         List<FlightSummaryDto> flights = FlightSummaryDto.from(flightService.findByBookRef(booking.getBookRef()));
-        booking.setTotalAmount(tickets);
+        booking.calculateTotalAmount(tickets);
         return BookingDto.from(booking, TicketDto.from(tickets), flights);
     }
 
