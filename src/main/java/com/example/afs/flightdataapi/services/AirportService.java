@@ -11,10 +11,12 @@ import java.util.List;
 @Service
 public class AirportService {
 
-    public final AirportRepository airportRepository;
+    private final AirportRepository airportRepository;
+    private final FlightService flightService;
 
-    public AirportService(AirportRepository airportRepository) {
+    public AirportService(AirportRepository airportRepository, FlightService flightService) {
         this.airportRepository = airportRepository;
+        this.flightService = flightService;
     }
 
     public List<Airport> findAll() {
@@ -32,6 +34,7 @@ public class AirportService {
 
     public Airport delete(String airportCode) {
         Airport airport = findById(airportCode);
+        flightService.deleteByAirportCode(airportCode);
         airportRepository.delete(airport);
         return airport;
     }

@@ -58,4 +58,11 @@ public class DataAccessAdvice {
         return ResponseEntity.badRequest()
                              .body(response);
     }
+
+    @ExceptionHandler(FlightAlreadyAddedException.class)
+    public ResponseEntity<ErrorResponse> handleFlightAlreadyAddedException(FlightAlreadyAddedException e, HttpServletRequest request) {
+        var response = ErrorResponse.from(e, request, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest()
+                             .body(response);
+    }
 }
