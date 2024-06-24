@@ -11,6 +11,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.transaction.TransactionException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class DataAccessAdvice {
 
     @ExceptionHandler({DataAccessException.class, TransactionException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleDataAccessException(NestedRuntimeException e, HttpServletRequest request) {
         ErrorResponse response = ErrorResponse.from(e, request, HttpStatus.BAD_REQUEST);
         return ResponseEntity.badRequest()
@@ -25,6 +27,7 @@ public class DataAccessAdvice {
     }
 
     @ExceptionHandler({DataNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorResponse> handleDataNotFoundException(DataNotFoundException e, HttpServletRequest request) {
         ErrorResponse response = ErrorResponse.from(e, request, HttpStatus.NOT_FOUND);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -32,6 +35,7 @@ public class DataAccessAdvice {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
         ErrorResponse response = ErrorResponse.from(e, request, HttpStatus.BAD_REQUEST);
         return ResponseEntity.badRequest()
@@ -39,6 +43,7 @@ public class DataAccessAdvice {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e, HttpServletRequest request) {
         ErrorResponse response = ErrorResponse.from(e, request, HttpStatus.BAD_REQUEST);
         return ResponseEntity.badRequest()
@@ -46,6 +51,7 @@ public class DataAccessAdvice {
     }
 
     @ExceptionHandler(CustomValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleCustomValidationException(CustomValidationException e, HttpServletRequest request) {
         ErrorResponse response = ErrorResponse.from(e, request, HttpStatus.BAD_REQUEST);
         return ResponseEntity.badRequest()
@@ -53,6 +59,7 @@ public class DataAccessAdvice {
     }
 
     @ExceptionHandler(MismatchedIdentifierException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleMismatchedIdentifierException(MismatchedIdentifierException e, HttpServletRequest request) {
         ErrorResponse response = ErrorResponse.from(e, request, HttpStatus.BAD_REQUEST);
         return ResponseEntity.badRequest()
@@ -60,6 +67,7 @@ public class DataAccessAdvice {
     }
 
     @ExceptionHandler(FlightAlreadyAddedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleFlightAlreadyAddedException(FlightAlreadyAddedException e, HttpServletRequest request) {
         var response = ErrorResponse.from(e, request, HttpStatus.BAD_REQUEST);
         return ResponseEntity.badRequest()

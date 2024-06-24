@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.model.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -13,13 +14,14 @@ public class AircraftsData {
     @Id
     @Length(min = 3, max = 3)
     @Column(nullable = false)
-    // IATA aircraft code
+    @Schema(description = "IATA aircraft code")
     String aircraftCode;
 
+    @Schema(description = "Aircraft model name")
     @JdbcTypeCode(SqlTypes.JSON)
     TranslatedField model;
 
-    // Maximum flying distance in km
+    @Schema(description = "Maximum flying distance in km")
     @Positive
     int range;
 

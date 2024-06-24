@@ -13,8 +13,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
-public class AircraftDataController {
+public class AircraftDataController implements AircraftDataEndpoints {
 
     private final AircraftDataService aircraftDataService;
     private Logger logger = LoggerFactory.getLogger(AircraftDataController.class);
@@ -23,13 +22,13 @@ public class AircraftDataController {
         this.aircraftDataService = aircraftDataService;
     }
 
-    @GetMapping("/aircraft")
+    @Override
     public ResponseEntity<List<AircraftsData>> getAllAircraft() {
         return ResponseEntity.ok(aircraftDataService.findAll());
     }
 
-    @GetMapping("/aircraft/{code}")
-    public ResponseEntity<AircraftsData> getAircraftDataById(@PathVariable String code) {
+    @Override
+    public ResponseEntity<AircraftsData> getAircraftDataById(String code) {
         AircraftsData found = findByAircraftCode(code);
         return ResponseEntity.ok(found);
     }
@@ -39,8 +38,8 @@ public class AircraftDataController {
                                   .orElseThrow(() -> new DataNotFoundException(code));
     }
 
-    @PostMapping("/aircraft")
-    public ResponseEntity<AircraftsData> addAircraftData(@RequestBody AircraftsData aircraftData) {
+    @Override
+    public ResponseEntity<AircraftsData> addAircraftData(AircraftsData aircraftData) {
         AircraftsData saved = aircraftDataService.save(aircraftData);
         URI location = UriComponentsBuilder.fromHttpUrl("http://localhost/api/aircraft")
                                             .pathSegment(saved.getAircraftCode())
@@ -49,14 +48,14 @@ public class AircraftDataController {
                              .body(saved);
     }
 
-    @PutMapping("/aircraft/{code}")
-    public ResponseEntity<AircraftsData> updateAircraftData(@PathVariable String code, @RequestBody AircraftsData updatedData) {
+    @Override
+    public ResponseEntity<AircraftsData> updateAircraftData(String code, AircraftsData updatedData) {
         AircraftsData toBeUpdated = findByAircraftCode(code);
         toBeUpdated.updateWith(updatedData);
         return ResponseEntity.ok(toBeUpdated);
     }
 
-    @DeleteMapping("/aircraft/{code}")
+    @Override
     public ResponseEntity<AircraftsData> deleteAircraftData(@PathVariable String code) {
         AircraftsData deleted = findByAircraftCode(code);
         logger.debug("Found aircraft data for {}. Proceding to delete...", code);

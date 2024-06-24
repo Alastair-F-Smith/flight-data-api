@@ -54,7 +54,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(new RolesClaimConverter(new JwtGrantedAuthoritiesConverter()))
                 ))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/bookings/**").authenticated()
+                .authorizeHttpRequests(auth -> auth
+                                                    .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                                                    .requestMatchers("/api/bookings/**").authenticated()
                                                     .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
                                                     .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
                                                     .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
