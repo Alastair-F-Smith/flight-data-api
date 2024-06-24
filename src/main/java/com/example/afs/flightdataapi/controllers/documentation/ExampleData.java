@@ -21,4 +21,20 @@ public class ExampleData {
           "range": 0
         }
         """;
+
+    public static final String SEAT_VALID = """
+            {
+              "aircraftCode": "773",
+              "seatNo": "19A",
+              "fareConditions": "ECONOMY"
+            }
+            """;
+
+    public static final String SEAT_INVALID = """
+            {
+              "aircraftCode": "7730",
+              "seatNo": "199",
+              "fareConditions": "economy"
+            }
+            """;
 }

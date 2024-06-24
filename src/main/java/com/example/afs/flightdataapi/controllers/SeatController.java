@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class SeatController {
+public class SeatController implements SeatEndpoints {
 
     private final SeatService seatService;
     private final Logger logger = LoggerFactory.getLogger(SeatController.class);
@@ -26,6 +26,7 @@ public class SeatController {
         this.seatService = seatService;
     }
 
+    @Override
     @GetMapping("/aircraft/{aircraftCode}/seats")
     public ResponseEntity<List<SeatDto>> getAllSeatsOnAircraft(@PathVariable String aircraftCode) {
         List<Seat> seats = seatService.findAllByAircraftCode(aircraftCode);
@@ -33,6 +34,7 @@ public class SeatController {
         return ResponseEntity.ok(SeatDto.from(seats));
     }
 
+    @Override
     @GetMapping("/aircraft/{aircraftCode}/seats/{seatNo}")
     public ResponseEntity<SeatDto> getSeat(@PathVariable String aircraftCode, @PathVariable String seatNo) {
         Seat seat = seatService.findById(aircraftCode, seatNo);
@@ -40,6 +42,7 @@ public class SeatController {
         return ResponseEntity.ok(SeatDto.from(seat));
     }
 
+    @Override
     @PostMapping("/aircraft/{aircraftCode}/seats")
     public ResponseEntity<SeatDto> addSeat(@PathVariable String aircraftCode,
                                            @Valid @RequestBody SeatDto seatDto) {
@@ -61,6 +64,7 @@ public class SeatController {
         }
     }
 
+    @Override
     @PutMapping("/aircraft/{aircraftCode}/seats/{seatNo}")
     public ResponseEntity<SeatDto> editSeat(@PathVariable String aircraftCode,
                                             @PathVariable String seatNo,
@@ -72,6 +76,7 @@ public class SeatController {
         return ResponseEntity.ok(SeatDto.from(updated));
     }
 
+    @Override
     @DeleteMapping("/aircraft/{aircraftCode}/seats/{seatNo}")
     public ResponseEntity<SeatDto> deleteSeat(@PathVariable String aircraftCode,
                                             @PathVariable String seatNo) {
