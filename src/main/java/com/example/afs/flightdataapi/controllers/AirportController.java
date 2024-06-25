@@ -4,7 +4,12 @@ import com.example.afs.flightdataapi.controllers.advice.MismatchedIdentifierExce
 import com.example.afs.flightdataapi.model.dto.AirportDto;
 import com.example.afs.flightdataapi.model.entities.Airport;
 import com.example.afs.flightdataapi.services.AirportService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -12,6 +17,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Airport data", description = "Data on available airports.")
 @RestController
 @RequestMapping("/api")
 public class AirportController {
@@ -22,18 +29,22 @@ public class AirportController {
         this.airportService = airportService;
     }
 
-    @GetMapping("/airports")
+    @Operation(summary = "Get data on all available airports")
+    @GetMapping(value = "/airports")
     public ResponseEntity<List<AirportDto>> getAllAirports() {
         List<Airport> airports = airportService.findAll();
         return ResponseEntity.ok(AirportDto.from(airports));
     }
 
+    @Operation(summary = "Get data on a specified airport", description = "The airport code is a unique 3-character identifier")
     @GetMapping("/airports/{airportCode}")
     public ResponseEntity<AirportDto> getByAirportCode(@PathVariable String airportCode) {
         Airport airport = airportService.findById(airportCode);
         return ResponseEntity.ok(AirportDto.from(airport));
     }
 
+    @Operation(summary = "Add an airport")
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/airports")
     public ResponseEntity<AirportDto> saveAirport(@Valid @RequestBody AirportDto airportDto) {
         Airport airport = airportService.fromDto(airportDto);
@@ -48,6 +59,7 @@ public class AirportController {
                              .body(AirportDto.from(saved));
     }
 
+    @Operation(summary = "Edit data for an airport", description = "The airport codes in the path and the request body must match.")
     @PutMapping("/airports/{airportCode}")
     public ResponseEntity<AirportDto> updateAirport(@PathVariable String airportCode, @Valid @RequestBody AirportDto airportDto) {
         if (!airportCode.equals(airportDto.airportCode())) {
@@ -58,6 +70,7 @@ public class AirportController {
         return ResponseEntity.ok(AirportDto.from(updated));
     }
 
+    @Operation(summary = "Remove data for an airport")
     @DeleteMapping("airports/{airportCode}")
     public ResponseEntity<AirportDto> deleteAirport(@PathVariable String airportCode) {
         Airport deleted = airportService.delete(airportCode);

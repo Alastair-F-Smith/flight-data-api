@@ -65,10 +65,10 @@ public class FlightService {
         return flights;
     }
 
-    public Page<Flight> search(FlightQuery query, PagingAndSortingQuery paging) {
+    public Page<Flight> search(FlightQuery query, Pageable paging) {
         logger.debug("Search for flights with the query: {}", query);
         FlightSpecs spec = new FlightSpecs(query);
-        return flightRepository.findAll(spec, paging.pageRequest());
+        return flightRepository.findAll(spec, paging);
     }
 
     public void deleteByAirportCode(String airportCode) {

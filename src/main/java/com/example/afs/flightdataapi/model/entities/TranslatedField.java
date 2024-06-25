@@ -1,9 +1,12 @@
 package com.example.afs.flightdataapi.model.entities;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.io.Serializable;
 
-public record TranslatedField(String en, String ru) implements Serializable {
+public record TranslatedField(@Schema(description = "English") String en,
+                              @Schema(description = "Russian") String ru) implements Serializable {
 
     public TranslatedField withEn(String english) {
         return new TranslatedField(english, ru);

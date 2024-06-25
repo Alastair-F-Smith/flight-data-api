@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
@@ -42,6 +43,7 @@ class FlightControllerIT {
     void setUp() {
         webTestClient = MockMvcWebTestClient.bindToController(flightController)
                                             .controllerAdvice(dataAccessAdvice)
+                .customArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                                             .build();
     }
 
@@ -61,7 +63,7 @@ class FlightControllerIT {
     void findPageReturnsPagesOfSpecifiedSize() {
         webTestClient.get()
                      .uri(builder -> builder.path("/api/flights/")
-                                            .queryParam("pageSize", 1)
+                                            .queryParam("size", 1)
                                             .build())
                      .exchange()
                      .expectBody()
@@ -75,8 +77,8 @@ class FlightControllerIT {
     void findPageReturnsTheRequestedPageNumber() {
         webTestClient.get()
                      .uri(builder -> builder.path("/api/flights/")
-                                            .queryParam("pageSize", 1)
-                                            .queryParam("pageNumber", 1)
+                                            .queryParam("size", 1)
+                                            .queryParam("page", 1)
                                             .build())
                      .exchange()
                      .expectBody()
@@ -99,7 +101,7 @@ class FlightControllerIT {
     void findPagesReturnsResultsSortedInTheSpecifiedDirection() {
         webTestClient.get()
                      .uri(builder -> builder.path("/api/flights/")
-                                            .queryParam("sortDirection", "desc")
+                                            .queryParam("sort", "scheduledDeparture,desc")
                                             .build())
                      .exchange()
                      .expectBody()
@@ -111,7 +113,7 @@ class FlightControllerIT {
     void findPageReturnsResultsSortedAccordingToTheSpecifiedField() {
         webTestClient.get()
                      .uri(builder -> builder.path("/api/flights/")
-                                            .queryParam("sortField", "flightNo")
+                                            .queryParam("sort", "flightNo")
                                             .build())
                      .exchange()
                      .expectBody()
