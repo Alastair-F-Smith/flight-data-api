@@ -47,10 +47,6 @@ public interface AircraftDataEndpoints {
     })
     @PostMapping("/aircraft")
     ResponseEntity<AircraftsData> addAircraftData(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Aircraft data to be added",
-                    content = { @Content(examples = {@ExampleObject(value = ExampleData.AIRCRAFT_VALID, name = "Valid data"),
-                            @ExampleObject(value = ExampleData.AIRCRAFT_INVALID, name = "Invalid data")
-                    })})
             @Valid @RequestBody AircraftsData aircraftData);
 
     @Operation(summary = "Edit aircraft model data")
@@ -60,10 +56,6 @@ public interface AircraftDataEndpoints {
     })
     @PutMapping("/aircraft/{code}")
     ResponseEntity<AircraftsData> updateAircraftData(@PathVariable String code,
-                                                    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Aircraft data to be added",
-                                                            content = { @Content(examples = {@ExampleObject(value = ExampleData.AIRCRAFT_VALID, name = "Valid data"),
-                                                                    @ExampleObject(value = ExampleData.AIRCRAFT_INVALID, name = "Invalid data")
-                                                            })})
                                                     @Valid @RequestBody AircraftsData updatedData);
 
     @Operation(summary = "Delete data for an aircraft model")

@@ -47,10 +47,6 @@ public interface SeatEndpoints {
     })
     @PostMapping("/aircraft/{aircraftCode}/seats")
     ResponseEntity<SeatDto> addSeat(@PathVariable String aircraftCode,
-                                    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(examples = {
-                                                    @ExampleObject(value = ExampleData.SEAT_VALID, name = "Valid data"),
-                                                    @ExampleObject(value = ExampleData.SEAT_INVALID, name = "Invalid data")
-                                    })})
                                     @Valid @RequestBody SeatDto seatDto);
 
     @Operation(summary = "Update seat information", description = "Note that the aircraft code and seat number in the URL path must match those in the request body")
@@ -61,10 +57,6 @@ public interface SeatEndpoints {
     @PutMapping("/aircraft/{aircraftCode}/seats/{seatNo}")
     ResponseEntity<SeatDto> editSeat(@PathVariable String aircraftCode,
                                      @PathVariable String seatNo,
-                                     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = { @Content(examples = {
-                                             @ExampleObject(value = ExampleData.SEAT_VALID, name = "Valid data"),
-                                             @ExampleObject(value = ExampleData.SEAT_INVALID, name = "Invalid data")
-                                     })})
                                      @Valid @RequestBody SeatDto seatDto);
 
     @Operation(summary = "Delete seat information")
