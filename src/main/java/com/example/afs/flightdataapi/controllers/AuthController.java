@@ -28,7 +28,7 @@ public class AuthController {
     @Operation(summary = "Sign in to obtain an access token")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Authenticated",
-                    content = { @Content(mediaType = "application/json")}),
+                    content = { @Content}),
             @ApiResponse(responseCode = "401", description = "Not authenticated",
                     content = { @Content})
     })
