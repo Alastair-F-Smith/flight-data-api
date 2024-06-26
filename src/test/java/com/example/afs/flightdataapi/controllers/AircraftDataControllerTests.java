@@ -1,5 +1,6 @@
 package com.example.afs.flightdataapi.controllers;
 
+import com.example.afs.flightdataapi.config.HypermediaConfig;
 import com.example.afs.flightdataapi.config.SecurityConfig;
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
 import com.example.afs.flightdataapi.model.entities.TranslatedField;
@@ -9,6 +10,7 @@ import com.example.afs.flightdataapi.services.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,15 +23,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.endsWith;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
 
 @WebMvcTest({AircraftDataController.class, AuthController.class, DataAccessAdvice.class})
-@Import({TokenService.class, SecurityConfig.class})
+@Import({TokenService.class, SecurityConfig.class, HypermediaConfig.class})
 class AircraftDataControllerTests {
 
     @Autowired
@@ -256,6 +260,31 @@ class AircraftDataControllerTests {
 
         mockMvc.perform(delete("/api/aircraft/" + aircraft1.getAircraftCode()))
                .andExpect(status().isForbidden());
+    }
+
+    @Nested
+    @DisplayName("Hateoas link rendering")
+    class HateoasLinkRendering {
+
+        @WithMockUser
+        @Test
+        @DisplayName("Get all renders top-level links to self")
+        void getAllRendersTopLevelLinksToSelf() throws Exception {
+            mockMvc.perform(get("/api/aircraft"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpectAll(
+                            jsonPath("$._links.self.href", endsWith("/api/aircraft")),
+                            jsonPath("$._templates.default.method", is("POST")),
+                            jsonPath("$._templates.default.properties.length()", is(3)),
+                            jsonPath("$._templates.default.properties[0].name", is("aircraftCode")),
+                            jsonPath("$._templates.default.properties[1].name", is("model")),
+                            jsonPath("$._templates.default.properties[2].name", is("range")),
+                            jsonPath("$._templates.default.properties[0].minLength", is(3)),
+                            jsonPath("$._templates.default.properties[0].maxLength", is(3))
+                    );
+        }
+
     }
 
 }

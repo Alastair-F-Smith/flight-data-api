@@ -1,18 +1,17 @@
 package com.example.afs.flightdataapi.controllers;
 
+import com.example.afs.flightdataapi.config.HypermediaConfig;
 import com.example.afs.flightdataapi.controllers.advice.DataAccessAdvice;
 import com.example.afs.flightdataapi.controllers.advice.ErrorResponse;
 import com.example.afs.flightdataapi.model.entities.TranslatedField;
 import com.example.afs.flightdataapi.model.entities.AircraftsData;
 import com.example.afs.flightdataapi.testutils.TestConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -22,9 +21,12 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
+@Import({HypermediaConfig.class})
 @Sql(scripts = TestConstants.POPULATE_SCRIPT_PATH, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class AircraftDataControllerIT {
 
